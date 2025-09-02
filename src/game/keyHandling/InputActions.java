@@ -1,0 +1,34 @@
+package game.keyHandling;
+
+/**
+ *
+ * This functional interface allows an Enum class to be used as an action dictionary
+ * by the InputHandler class. An action dictionary is an ensemble of constants associated
+ * with an integer array that represents the codes of the key that triggers said action.
+ * Multiple keys can trigger an action, and multiple actions can be triggered by the same
+ * key, which allows flexibility.<br>
+ * Here is an example of an action dictionary :
+ * <pre>{@code
+ * GameActions extends Enum implements InputActions {
+ *     GO_LEFT(new int[] {KeyEvent.VK_LEFT}),
+ *     GO_RIGHT(new int[] {KeyEvent.VK_RIGHT}),
+ *     JUMP(new int[] {KeyEvent.VK_UP}),
+ *     CROUCH(new int[] {KeyEvent.VK_DOWN});
+ *
+ *     private int[] keyCodes;
+ *
+ *     GameActions(int[] keyCodes) {
+ *         this.keyCodes = keyCodes;
+ *     }
+ *
+ *     @Override
+ *     public int[] getKeyCodes() {
+ *         return keyCodes;
+ *     }
+ * }}</pre>
+ */
+@FunctionalInterface
+public interface InputActions {
+
+    int[] getKeyCodes();
+}
