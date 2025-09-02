@@ -14,7 +14,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
     public enum PauseMenuOptions {
         RESUME,
         MAIN_MENU,
-        SOUND_ON, SOUND_OFF;
+        SOUND_ON, SOUND_OFF
 
     }
     public Game master;
@@ -28,8 +28,8 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
     private int serveCountDown = 0;
     private int scoreCountDown = 0;
     public int gameState = -1;
-    private int scorePlayer1 = 0;
-    private int scorePlayer2 = 0;
+    private int scorePlayer1;
+    private int scorePlayer2;
     private final InputHandler<GameActions> input;
     private final BackGroundMenu backGround = new BackGroundMenu(this, null);
 
@@ -49,7 +49,8 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
             case -1 -> {
                 return; // in this case, the game hasn't been initialized, so there is nothing to update
             }
-            case 0 -> {
+
+            case 0 -> { // before the serve
                 if (serveCountDown > 0) {
                     serveCountDown--;
                 } else {
@@ -60,7 +61,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                     }
                 }
             }
-            case 1 -> {
+            case 1 -> { // the part where the game is actually played
                 gameLogic();
                 int goal = ball.touchDown();
                 if (goal == 0) return;
@@ -69,13 +70,16 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                 scoreCountDown = 2000;
                 gameState++;
             }
-            case 2 -> {
+            case 2 -> { // countdown before resetting the positions, so the players acknowledge the score
                 if(scoreCountDown > 0) scoreCountDown--;
                 else {
                     resetPos();
                     serveCountDown = 3000;
-                    gameState = 0;
-
+                    if (winTest()) {
+                        gameState = -1;
+                        master.openMenu();
+                    }
+                    else gameState = 0;
                 }
             }
         }
@@ -128,6 +132,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
 
     public void startGame(int gameMode) {
         this.gameMode = gameMode;
+        scorePlayer1 = scorePlayer2 = 0;
         switch (gameMode) {
             case 0 -> {
                 player1 = new ComputerPlayer(1, ComputerPlayer.Difficulty.SMART);
@@ -190,7 +195,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
         updateEntities();
     }
 
-    public boolean win() {
+    public boolean winTest() {
         if (scorePlayer1 == 11 || scorePlayer2 == 11) return true;
         if (scorePlayer1 >= 9 && scorePlayer1 - scorePlayer2 > 1) return true;
         if (scorePlayer2 >= 9 && scorePlayer2 - scorePlayer1 > 1) return true;
