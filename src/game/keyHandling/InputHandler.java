@@ -12,11 +12,9 @@ import game.Updatable;
  * It extends KeyListener however keyTyped don't do anything.
  * <code>public boolean actionActivated(action)</code> should be used for the class to work properly.
  * When constructed, it adds itself to the java awt component chosen as master.
- * It works by using an Enum class that implements InputHandler, referred to as an "action dictionary".
+ * It works by using an Enum class that implements InputHandler, referred to as an "action mapping".
  * See InputActions for more details about this kind of Enum.
- * @param <E> an Enum class that implements InputAction used as an action dictionary
- * @since 1.8
- * @author Augustin Sathicq
+ * @param <E> an Enum class that implements InputAction used as an action mapping
  */
 public class InputHandler<E extends Enum<E> & InputActions> implements KeyListener, Updatable {
 
@@ -71,7 +69,7 @@ public class InputHandler<E extends Enum<E> & InputActions> implements KeyListen
      * which contains the keys pressed last tick.
      * In other words, we keep in memory the keys pressed within the tick that just ended, which allows the methods
      * <code>actionJustPressed(Enum)</code> and <code>actionJustReleased(Enum)</code> to work properly.
-     * This method is like the timekeeper of this class, allowing make the difference between "now" and "before".
+     * This method is like the timekeeper of this class, allowing it to make the difference between "now" and "before".
      * @see #actionJustPressed(Enum)
      * @see #actionJustReleased(Enum)
      */
@@ -92,7 +90,8 @@ public class InputHandler<E extends Enum<E> & InputActions> implements KeyListen
      * <li>→ is pressed</li>
      * <li> both D and → are pressed.</li>
      * </ul>
-     * You can test whether an action is not activated by just using the logical not as such : <code>!actionActivated(RUNNING) // returns true if JUMP is not triggered</code>.
+     * You can test whether an action is not activated by just using the logical not as such :
+     * <code>!actionActivated(RUNNING) // returns true if JUMP is not triggered</code>.
      * @param action an Enum subclass of E as defined in {@link #InputHandler}
      * @return true if at least one of the keys performing the action is pressed, else false
      * @see #actionJustPressed(Enum)
