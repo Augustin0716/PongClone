@@ -47,8 +47,8 @@ public class MainMenu extends Menu {
         menuComponents[2] = new Button(this, "2 PLAYERS", MainMenuOptions.PLAYER_VS_PLAYER);
         menuComponents[3] = new Button(this, "QUIT", MainMenuOptions.EXIT_GAME);
         for (int i = 0; i < menuComponents.length; i++) {
-            menuComponents[i].setPos(450, 250 + 30 * i);
-        }
+            menuComponents[i].setPos(300, 190 + 30 * i);
+        } // TODO : find a reliable way to center menu components
         ((SelectableMenuComponent) menuComponents[currentSelection]).toggleSelectionBehavior(true);
     }
 }
