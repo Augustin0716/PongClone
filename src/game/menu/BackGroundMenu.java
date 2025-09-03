@@ -17,7 +17,8 @@ public class BackGroundMenu extends Menu {
     }
 
     @Override
-    public void render(Graphics g){
+    public void render(Graphics g) {
+        //TODO : maybe add some elements or even generate an image for the background
         for (MenuComponent mc : menuComponents) mc.render(g);
     }
 
