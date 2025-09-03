@@ -3,9 +3,24 @@ package game.menu.menuComponent;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * A class that generates and hold BufferedImage objects representing 7-segments digits. It generates it upon
+ * initializing and {@link #getDigit(int)} is the method used to get them. Once created, the images cannot be changed
+ * directly from the object, it's best to create yet another one for another "set" of 7-segments digits with another
+ * style. The Counter class rely on this class to get its numbers.
+ * @see #DigitFactory(int, Color, Color)  DigitFactory
+ */
 public class DigitFactory {
-    private static BufferedImage[] digits = new BufferedImage[10];
+    private final BufferedImage[] digits = new BufferedImage[10];
     public final int size;
+
+    /**
+     * Main constructor of the class. It generates the digits, so they're directly ready to go and
+     * accessible via {@link #getDigit(int)}.
+     * @param size int for scaling the images, which dimensions will be (10*size)x(17*size) measured in pixels
+     * @param fontColor the color of the digits, as AWT Color objects
+     * @param backGroundColor the color of the background, as AWT Color objects
+     */
     public DigitFactory(int size, Color fontColor, Color backGroundColor) {
         this.size = size;
         int L = 10 * size;
@@ -35,9 +50,14 @@ public class DigitFactory {
         };
 
         for(int i = 0; i < 10; i++) {
+            // The size is exactly the space needed for all the segments to fit in the image
             digits[i] = new BufferedImage(L, 2 * u + l, BufferedImage.TYPE_INT_ARGB);
             Graphics g = digits[i].createGraphics();
 
+            if (backGroundColor != null) {
+                g.setColor(backGroundColor);
+                g.fillRect(0, 0, L, 2 * u + l);
+            }
 
             g.setColor(fontColor);
 
@@ -51,12 +71,25 @@ public class DigitFactory {
         }
     }
 
+    /**
+     * Constructor that takes colors as Strings. They should be in the hex color format : "#XXXXXX"
+     * to work properly. For no background (transparent), backGroundColor can be <code>null</code>.
+     * @param size int for scaling the images, which dimensions will be (10*size)x(17*size) measured in pixels
+     * @param fontColor the color of the digits, as a String in hex color format
+     * @param backGroundColor the color of the background, as a String in hex color format
+     * @see #DigitFactory(int, Color, Color)  DigitFactory
+     */
     public DigitFactory(int size, String fontColor, String backGroundColor) {
-        this(size, Color.decode(fontColor), Color.decode(backGroundColor));
+        this(size, Color.decode(fontColor), (backGroundColor != null)? Color.decode(backGroundColor):null);
     }
 
+    /**
+     * Minimalist constructor that only takes the size as an argument. The digits will be white and there will be no
+     * background.
+     * @param size int for scaling the images, which dimensions will be (10*size)x(17*size) measured in pixels
+     */
     public DigitFactory(int size) {
-        this(size, Color.WHITE, Color.BLACK);
+        this(size, Color.WHITE, null);
     }
 
     public BufferedImage getDigit(int n) {
