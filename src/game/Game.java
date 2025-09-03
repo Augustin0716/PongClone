@@ -19,7 +19,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
         PLAYER_VS_BOT,
         PLAYER_VS_PLAYER,
         EXIT_GAME,
-    }
+    } //TODO : extend the enum so it covers more cases
 
     private final String NAME = "Pong Java Edition";
     public static final int HEIGHT = 500;
@@ -56,7 +56,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
             case BOT_VS_BOT -> launchGame(0); //we initialize the game for 2 bots
             case PLAYER_VS_BOT -> launchGame(1); //we initialize the game for a player and a bot. The player is on the left
             case PLAYER_VS_PLAYER -> launchGame(2); //we initialize the game for 2 players
-        }
+        } //TODO : the button in the main menu should open other menus
 
     }
 
