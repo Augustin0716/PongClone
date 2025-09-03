@@ -174,6 +174,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                 ((ComputerPlayer) player1).computerMove();
                 ((ComputerPlayer) player2).computerMove();
             }
+
             case 1 -> { // if only one player plays, every input for the players trigger p1
                 if (input.actionActivated(GameActions.PLAYER1_MOVE_DOWN) || input.actionActivated(GameActions.PLAYER2_MOVE_DOWN)) {
                     player1.y += Racket.SPEED;
@@ -184,6 +185,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                 // the bot plays too
                 ((ComputerPlayer) player2).computerMove();
             }
+
             case 2 -> {
                 if (input.actionActivated(GameActions.PLAYER1_MOVE_DOWN)) player1.y += Racket.SPEED;
                 if (input.actionActivated(GameActions.PLAYER1_MOVE_UP)) player1.y -= Racket.SPEED;
@@ -195,7 +197,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
         updateEntities();
     }
 
-    public boolean winTest() {
+    public boolean winTest() { //TODO : might need a rework later, so we actually know who won
         if (scorePlayer1 == 11 || scorePlayer2 == 11) return true;
         if (scorePlayer1 >= 9 && scorePlayer1 - scorePlayer2 > 1) return true;
         if (scorePlayer2 >= 9 && scorePlayer2 - scorePlayer1 > 1) return true;
