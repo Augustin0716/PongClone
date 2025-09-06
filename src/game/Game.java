@@ -25,12 +25,9 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
     public static final int HEIGHT = 500;
     public static final int WIDTH = 800;
     private boolean running;
-    private BufferStrategy bs;
-    private Graphics g;
-    private boolean player1isBot, player2isBot;
     private final float TICK_DELAY_NS = 1000000;
-    private final float FRAME_DELAY_NS = (float) 1000000000 / 60;
-    private final boolean CAP_REFRESH_RATE = false;
+    private final float FRAME_DELAY_NS = 1.6666667E7f; // 1,000,000,000 / 60
+    private final boolean CAP_REFRESH_RATE = false; //doesn't work for some reasons
     private Menu menu;
     private MatchManager matchManager;
     private InputHandler<GameActions> input;
@@ -77,6 +74,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
 
     @Override
     public void update() {
+        input.update(); // has trouble working since some ticks are updated together
         if (menu != null) menu.update();
         else matchManager.update();
     }
@@ -87,15 +85,14 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
             createBufferStrategy(3);
             return;
         }
-        bs = getBufferStrategy();
-        g = bs.getDrawGraphics();
-
+        BufferStrategy bs = getBufferStrategy();
+        Graphics g = bs.getDrawGraphics();
 
         g.setColor(Color.BLACK);
-        g.fillRect(0,0, WIDTH, HEIGHT);
+        g.clearRect(0,0, WIDTH, HEIGHT);
 
-        if (menu != null) menu.render(this.g);
-        else matchManager.render(this.g);
+        if (menu != null) menu.render(g);
+        else matchManager.render(g);
 
         g.dispose();
         bs.show();
@@ -104,7 +101,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
 
     public void init() {
 
-        input = new InputHandler<GameActions>(this);
+        input = new InputHandler<>(this);
 
         matchManager = new MatchManager(this, input);
 
@@ -142,7 +139,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
             // render loop, if we don't cap the refresh rate, it'll refresh as fast as possible
             frameUpdateToMake = (System.nanoTime() - frameTimer) / FRAME_DELAY_NS;
             if ((frameUpdateToMake > 1 || !CAP_REFRESH_RATE)) {
-                render(g);
+                render(null);
                 frames++;
             }
             frameTimer = System.nanoTime();
@@ -165,7 +162,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
     public static void main(String[] args) {
         Game game = new Game();
         game.setBackground(Color.BLACK);
-        Dimension dim = new Dimension(game.WIDTH,game.HEIGHT);
+        Dimension dim = new Dimension(Game.WIDTH, Game.HEIGHT);
         game.setPreferredSize(dim);
         game.setMinimumSize(dim);
         game.setMaximumSize(dim);
