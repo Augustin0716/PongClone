@@ -37,28 +37,6 @@ public class ComputerPlayer extends Racket {
         }
     }
 
-    //TODO : this method will soon be deprecated or at the very least changed
-    private float calculateHitPos(Ball ball, float capCalculation) {
-        Vector2D pos = ball.position.clone();
-        Vector2D speed = ball.speed.clone();
-        float t = (x - pos.getX() + Ball.RADIUS * side) / speed.getX();
-
-        if (t < 0) return (float) Game.HEIGHT / 2;
-        if (t > capCalculation) t = capCalculation;
-
-        // the distance of the height accessible to the center of the ball
-        float h = Game.HEIGHT - 2 * Ball.RADIUS;
-        // the period of the bounce (at the end of which the ball is at the same y with the same speed as
-        // at the beginning)
-        float p = 2 * h;
-        float yDist = pos.getY() + speed.getY() * t;
-        float m = yDist % p;
-        if (m < 0) m += p;
-
-        float yInside = (m <= h) ? m : (p - m);
-        // we add the radius of the ball because the calculations is off by the radius of the ball
-        return yInside + Ball.RADIUS;
-    }
 
     private float[] calculateMovements(Vector2D position, Vector2D speed, int capCalculations) {
         float y0 = position.getY();
@@ -67,21 +45,25 @@ public class ComputerPlayer extends Racket {
         float offSet = (float) ((1 + random.nextGaussian() * 0.5) * HEIGHT / 2);
         // time in ticks at which the ball reaches the goal
         int tf = calculateHitTime(position.getX(), speed.getX());
+        if (tf < 0) {
+            return new float[] {Game.HEIGHT / 2f - offSet};
+            // quick fix for the negative array size issue, might be replaced in the future
+        }
         // the length of the positions should be able to run 1/10 of the ticks between t = 0 and t = tf, and we add 1 to ensure it's enough with the rounds up
-        float[] positions = new float[tf / 10 + 1]; //TODO : causes bugs when the ball is not heading toward the paddle (negative array)
+        float[] positions = new float[tf / 10 + 1];
         /*
         this loop justifies the use of an array : the goal is to make the
         computer look more hesitant and human-like when it can't calculate
         far enough. It also gives it a chance without running yet another
         calculation. capCalculations is actually how far in the future
-        the computer can "see", in ticks.
+        the computer can foresee, in ticks.
          */
         if (tf > capCalculations) {
             for(int i = 0; i < positions.length; i++) {
                 int t = Math.min(capCalculations + i * 10, tf);
                 positions[i] = calculateBallPosition(y0, vy, t) - offSet;
             }
-        }
+        } //TODO : capping on time is negligible at high speed, distance must be capped instead
         else Arrays.fill(positions, calculateBallPosition(y0, vy, tf) - offSet);
         return positions;
     }
