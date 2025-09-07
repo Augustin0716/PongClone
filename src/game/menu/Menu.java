@@ -18,7 +18,7 @@ public abstract class Menu implements Renderable, Updatable {
     protected MenuMaster master;
     protected MenuComponent[] menuComponents;
     protected SelectableMenuComponent[] selectableMenuComponents;
-    protected final int SELECTION_COOLDOWN_IN_TICKS = 100;
+    protected final int SELECTION_COOLDOWN_IN_TICKS = 10;
     protected int cooldown = 0;
     protected int currentSelection = 0;
     protected InputHandler input;
