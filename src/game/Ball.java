@@ -11,7 +11,7 @@ public class Ball implements Renderable, Updatable {
     public static final int RADIUS = 10;
     public MatchManager master;
     public final Racket player1, player2;
-    public boolean collisionThisFrame = false;
+
     public Ball(MatchManager master, Racket player1, Racket player2) {
         this.master = master;
         this.player1 = player1;
@@ -58,11 +58,13 @@ public class Ball implements Renderable, Updatable {
     }
 
     private void handleRacketCollision(Vector2D racketCenter, int side) {
+        // the ball takes an angle depending on where it hits : 0 at the center, 60° at the edge
         double angle = toRadians(60 * 2 * (position.getY() - racketCenter.getY()) / Racket.HEIGHT);
+        // the norm is used so the ball's speed feels the same as before
         double norm = speed.norm();
 
         // some speed is added for each collision, so the game gets more difficult
-        norm += min(norm * 0.05, 0.1);
+        norm += min(norm * 0.05, 1);
         // the norm is "redistributed" to the coordinates depending on the angle
         speed.set((float) (norm * cos(angle)), (float) (norm * sin(angle)));
         // we get the ball back outside the racket to avoid a collision mayhem
@@ -91,6 +93,7 @@ public class Ball implements Renderable, Updatable {
             this.position.add(speed);
             testCollisions();
     }
+
     public int touchDown() {
         if (this.position.getX() <= RADIUS) return -1;
         if (this.position.getX() >= Game.WIDTH - RADIUS) return 1;
