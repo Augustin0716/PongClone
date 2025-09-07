@@ -51,7 +51,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                 if (countdown > 0) {
                     countdown--;
                 } else {
-                    ball.speed.set(.2f * scoreSide, 0); // the ball is headed to the player that lost last point
+                    ball.speed.set(2f * scoreSide, 0); // the ball is headed to the player that lost last point
                     gameState++;
                     for (Racket player : new Racket[] {player1, player2}) {
                         if (player instanceof ComputerPlayer) ((ComputerPlayer) player).setTargetY(ball);
@@ -65,7 +65,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                 if (scoreSide == 0) return;
                 int score = (scoreSide == 1)? ++scorePlayer1:++scorePlayer2;
                 backGround.updateScore(score, scoreSide);
-                countdown = 2000;
+                countdown = 200; // in ticks = 2 seconds
                 gameState++;
             }
 
@@ -76,10 +76,10 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                     if (winTest()) {
                         gameState++;
                         menu = new WonMenu(this, input, scoreSide);
-                        countdown = 1500;
+                        countdown = 150; // in ticks = 1.5 seconds
                     } else {
                         gameState = 0;
-                        countdown = 3000;
+                        countdown = 300; // in ticks = 3 seconds
                     }
                 }
             }
@@ -113,13 +113,18 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
 
     @Override
     public void menuActions(PauseMenuOptions action) {
-        /*
         switch (action) {
             case RESUME -> menu = null;
-            case MAIN_MENU -> we call the game, so it opens the main menu and kill the current game
-            case SOUND_OFF -> we mute the game when the sound will exist
-            case SOUND_ON -> we play sounds again when they exist
-         */
+            case MAIN_MENU -> {
+                menu = null;
+                gameState = -1;
+                master.openMenu();
+            }
+            case SOUND_OFF -> {}
+            case SOUND_ON -> {
+                // TODO : use it when sounds are created
+            }
+        }
     }
 
     @Override
@@ -159,7 +164,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
             }
         }
         ball = new Ball(this, player1, player2);
-        countdown = 1000;
+        countdown = 100; // in ticks = 1 second
 
         player1.x = Ball.RADIUS * 3;
         player2.x = Game.WIDTH - Ball.RADIUS * 3;
