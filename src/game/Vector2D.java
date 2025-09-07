@@ -127,26 +127,41 @@ public class Vector2D implements Cloneable {
     }
 
     /**
-     * Abstract method to get a new zero Vector2D object.
+     * Static method to get a new zero Vector2D object.
      * @return a new Vector2D object with coordinates (0, 0)
      */
     public static Vector2D zero() {
         return new Vector2D(0,0);
     }
+
     /**
-     * Abstract method for adding operation on vector2D objects. Doesn't modify v1 nor v2.
-     * @param v1 a non-null vector2D object
+     * Static method for addition on vector2D objects. Doesn't modify v1 nor v2.
+     * @param v1 a non-null Vector2D object
      * @param v2 another non-null vector2D object (v1 and v2 can be the same object)
      * @return a new Vector2D object with coordinates <code>(v1(x) + v2(x), v1(y) + v2(y))</code>.
+     * @see #addOperation(Vector2D, float, float)
      */
     public static Vector2D addOperation(Vector2D v1, Vector2D v2) {
         return new Vector2D(v1.getX() + v2.getX(), v1.getY() + v2.getY());
     }
 
+    /**
+     * Static method for addition on a Vector2D object. Doesn't modify any of the parameters.
+     * @param v a non-null Vector2D object
+     * @param x how much is added to the x coordinate
+     * @param y how much is added to the y coordinate
+     * @return a new Vector2D object with coordinates <code>(v(x) + x, v(y) + y)</code>.
+     */
     public static Vector2D addOperation(Vector2D v, float x, float y) {
         return new Vector2D(v.getX() + x, v.getY() + y);
     }
 
+    /**
+     * Static method for multiplication on a Vector2D object. Doesn't modify <code>v</code> nor <code>factor</code>.
+     * @param v a non-null Vector2D object
+     * @param factor by how much the coordinates are multiplied
+     * @return a new Vector2D object with coordinates <code>(v(x) * factor, v(y) * factor)</code>
+     */
     public static Vector2D multiplyOperation(Vector2D v, float factor) {
         return new Vector2D(v.getX() * factor, v.getY() * factor);
     }
