@@ -9,7 +9,7 @@ public class Racket implements Renderable, Updatable {
     public final int side;
     public static final int HEIGHT = 100;
     public static final int WIDTH = 10;
-    public static final float SPEED = 0.1f;
+    public static final float SPEED = 1f;
     private final int UP_SCROLL_LIMIT, DOWN_SCROLL_LIMIT;
 
     /**
