@@ -25,9 +25,10 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
     public static final int HEIGHT = 500;
     public static final int WIDTH = 800;
     private boolean running;
-    private final float TICK_DELAY_NS = 1000000;
-    private final float FRAME_DELAY_NS = 1.6666667E7f; // 1,000,000,000 / 60
-    private final boolean CAP_REFRESH_RATE = false; //doesn't work for some reasons
+    private final long TICK_DELAY_NS =  10000000; // = 1,000,000,000 / 100 which makes it 100 Hz for test
+    // TODO : currently 1000 Hz, test for 60, 100 or 120 Hz to save CPU
+    private final float FRAME_DELAY_NS = 1.6666667E7f; // = 1,000,000,000 / 60 which makes it 60 Hz
+    private final boolean CAP_REFRESH_RATE = true; //doesn't work for some reasons
     private Menu menu;
     private MatchManager matchManager;
     private InputHandler<GameActions> input;
@@ -110,46 +111,54 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
 
     @Override
     public void run() {
-        float tickUpdateToMake;
-        float frameUpdateToMake;
+        long now;
         long tickTimer = System.nanoTime();
+        double unprocessedTicks = 0;
         int ticks = 0;
         long frameTimer = System.nanoTime();
         int frames = 0;
+        int unprocessedFrames = 0;
         long debugTimer = System.currentTimeMillis();
         int loops = 0;
+        boolean shouldRender = false;
 
         init();
+
         do {
-            try {
-                Thread.sleep(1);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            now = System.nanoTime();
+            unprocessedTicks += (now - tickTimer) / (double) TICK_DELAY_NS;
+            tickTimer = now;
 
             // tick loop, so we don't miss any
-            tickUpdateToMake = (System.nanoTime() - tickTimer) / TICK_DELAY_NS;
-            while (tickUpdateToMake > 1) {
+            while (unprocessedTicks >= 1) {
                 update();
-                tickUpdateToMake--;
                 ticks++;
+                unprocessedTicks--;
+                shouldRender = true;
             }
-            tickTimer = System.nanoTime();
 
             // render loop, if we don't cap the refresh rate, it'll refresh as fast as possible
-            frameUpdateToMake = (System.nanoTime() - frameTimer) / FRAME_DELAY_NS;
-            if ((frameUpdateToMake > 1 || !CAP_REFRESH_RATE)) {
+            unprocessedFrames += (now - frameTimer) / FRAME_DELAY_NS;
+            frameTimer = now;
+            if ((unprocessedFrames >= 1 || !CAP_REFRESH_RATE) && shouldRender) {
                 render(null);
                 frames++;
+                shouldRender = false;
             }
-            frameTimer = System.nanoTime();
 
-            if (System.currentTimeMillis() - debugTimer > 1000) {
+            if (System.currentTimeMillis() - debugTimer >= 1000) {
                 debugTimer += 1000;
                 System.out.println(ticks + " ticks and " + frames + " frames last second");
                 System.out.println(loops + "game loop last second");
                 ticks = frames = loops = 0;
             }
+
+            try {
+                Thread.sleep(5);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             loops++;
         } while (running);
     }
