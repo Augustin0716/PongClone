@@ -25,7 +25,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
     public static final int HEIGHT = 500;
     public static final int WIDTH = 800;
     private boolean running;
-    private final long TICK_DELAY_NS =  10000000; // = 1,000,000,000 / 100 which makes it 100 Hz for test
+    private final float TICK_DELAY_NS =  1E7f; // = 1,000,000,000 / 100 which makes it 100 Hz for test
     // TODO : currently 1000 Hz, test for 60, 100 or 120 Hz to save CPU
     private final float FRAME_DELAY_NS = 1.6666667E7f; // = 1,000,000,000 / 60 which makes it 60 Hz
     private final boolean CAP_REFRESH_RATE = true; //doesn't work for some reasons
@@ -44,7 +44,6 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
 
     @Override
     public void menuActions(MainMenuOptions action) {
-
         switch (action) {
             case NEW_GAME -> {
                 //the menu changes to allow a selection for the new game, not yet used
@@ -113,11 +112,11 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
     public void run() {
         long now;
         long tickTimer = System.nanoTime();
-        double unprocessedTicks = 0;
+        float unprocessedTicks = 0;
         int ticks = 0;
         long frameTimer = System.nanoTime();
         int frames = 0;
-        int unprocessedFrames = 0;
+        float unprocessedFrames = 0;
         long debugTimer = System.currentTimeMillis();
         int loops = 0;
         boolean shouldRender = false;
@@ -126,7 +125,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
 
         do {
             now = System.nanoTime();
-            unprocessedTicks += (now - tickTimer) / (double) TICK_DELAY_NS;
+            unprocessedTicks += (now - tickTimer) / TICK_DELAY_NS;
             tickTimer = now;
 
             // tick loop, so we don't miss any
@@ -144,6 +143,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
                 render(null);
                 frames++;
                 shouldRender = false;
+                unprocessedFrames--;
             }
 
             if (System.currentTimeMillis() - debugTimer >= 1000) {
