@@ -4,7 +4,7 @@ package game.menu;
  * An interface that is used to define a class as being able to handle a menu
  * (from the same package, not an awt Menu object). It holds an enum that is used
  * as a set of constants to perform actions.
- * @param <E> an Enum also hold by Menu Components object
+ * @param <E> an Enum also held by SelectableMenuComponent objects
  */
 public interface MenuMaster<E extends Enum<E>> {
     /**
@@ -41,7 +41,7 @@ public interface MenuMaster<E extends Enum<E>> {
 
     /**
      * Used to close a menu. It gives a main to close a menu. It should simply be a null
-     * assignation to a variable, such as : <pre>{@code Menu menu = null;}</pre>
+     * assignation to a variable, such as : <pre>{@code menu = null;}</pre>
      */
     void closeMenu();
 }
