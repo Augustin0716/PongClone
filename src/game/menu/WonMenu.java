@@ -5,7 +5,7 @@ import game.keyHandling.InputHandler;
 import game.menu.menuComponent.Label;
 import game.menu.menuComponent.MenuComponent;
 
-import java.awt.*;
+import java.awt.Graphics;
 
 public class WonMenu extends Menu {
 
@@ -21,7 +21,7 @@ public class WonMenu extends Menu {
     public void initComponents() {
         //TODO : add some actions like play again or main menu
         menuComponents[0] = new Label(this, "GAME OVER");
-        menuComponents[1] = new Label(this, (winningSide == 1)? "Right player wins !":"Left player wins !");
+        menuComponents[1] = new Label(this, (winningSide == 1)? "Right player wins !" : "Left player wins !");
 
         menuComponents[0].setPos(350, 220);
         menuComponents[1].setPos(320, 250);
