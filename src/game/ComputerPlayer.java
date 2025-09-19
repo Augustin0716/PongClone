@@ -30,9 +30,11 @@ public class ComputerPlayer extends Racket {
         Vector2D pos = ball.position.clone();
         Vector2D velocity = ball.speed.clone();
         switch (difficulty) {
-            case OKAY -> targetsY = calculateMovements(pos, velocity, 2000);
-            case SMART -> targetsY = calculateMovements(pos, velocity, 10000);
-            case GOD -> targetsY = calculateMovements(pos, velocity, 10001);
+            case OKAY -> targetsY = calculateMovements(pos, velocity, 100);
+            case SMART -> targetsY = calculateMovements(pos, velocity, Game.WIDTH);
+            case GOD -> {
+                targetsY = calculateMovements(pos, velocity, Game.WIDTH);
+            }
             case THICKHEAD -> targetsY = calculateMovements(pos, velocity, 0);
         }
     }
@@ -56,11 +58,16 @@ public class ComputerPlayer extends Racket {
         computer look more hesitant and human-like when it can't calculate
         far enough. It also gives it a chance without running yet another
         calculation. capCalculations is actually how far in the future
-        the computer can foresee, in ticks.
+        the computer can foresee, in pixels.
          */
         if (tf > capCalculations) {
+            float t;
+            float vx = speed.getX();
             for(int i = 0; i < positions.length; i++) {
-                int t = Math.min(capCalculations + i * 10, tf);
+                t = Math.min(
+                        capCalculations / vx + i * 10,
+                        tf
+                );
                 positions[i] = calculateBallPosition(y0, vy, t) - offSet;
             }
         } //TODO : capping on time is negligible at high speed, distance must be capped instead
@@ -76,7 +83,7 @@ public class ComputerPlayer extends Racket {
      * @param t time in tick, t = 0 being the current tick
      * @return y(t), with (exact) calculations of the bounces.
      */
-    private float calculateBallPosition(float y0, float vy, int t) {
+    private float calculateBallPosition(float y0, float vy, float t) {
         // the distance of the height accessible to the center of the ball
         float h = Game.HEIGHT - 2 * Ball.RADIUS;
         // the period of the bounce (at the end of which the ball is at the same y with the same speed as
