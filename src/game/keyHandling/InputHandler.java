@@ -5,6 +5,9 @@ import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
 import java.awt.Component;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import game.Updatable;
 
 /**
@@ -18,9 +21,19 @@ import game.Updatable;
  */
 public class InputHandler<E extends Enum<E> & InputActions> implements KeyListener, Updatable {
 
+    private final Queue<KeyAction> eventQueue = new ConcurrentLinkedQueue<>();
     private final int INPUT_LENGTH = KeyEvent.KEY_LAST + 1;
     private final boolean[] pressedKeysArray = new boolean[INPUT_LENGTH];
     private final boolean[] previous = new boolean[INPUT_LENGTH];
+
+    public class KeyAction {
+        public final int keyCode;
+        final boolean pressed;
+        public KeyAction(int keyCode, boolean pressed) {
+            this.keyCode = keyCode;
+            this.pressed = pressed;
+        }
+    }
 
     /**
      * The sole constructor of the class. It adds itself to the Component directly, so it's ready right away.
@@ -32,12 +45,12 @@ public class InputHandler<E extends Enum<E> & InputActions> implements KeyListen
 
     @Override
     public void keyReleased(KeyEvent e) {
-        toggleKey(e, false);
+        eventQueue.add(new KeyAction(e.getKeyCode(), false));
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        toggleKey(e, true);
+        eventQueue.add(new KeyAction(e.getKeyCode(), true));
     }
 
     @Override
@@ -75,6 +88,15 @@ public class InputHandler<E extends Enum<E> & InputActions> implements KeyListen
     @Override
     public void update() {
         System.arraycopy(pressedKeysArray, 0, previous, 0, INPUT_LENGTH);
+        //previous = pressedKeysArray.clone();
+        //TODO : choose the better option
+
+        KeyAction action;
+        while ((action = eventQueue.poll()) != null) {
+            if (action.keyCode >= 0 && action.keyCode < INPUT_LENGTH) {
+                pressedKeysArray[action.keyCode] = action.pressed;
+            }
+        }
     }
 
     /**
