@@ -74,7 +74,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
 
     @Override
     public void update() {
-        input.update(); // has trouble working since some ticks are updated together
+        input.update();
         if (menu != null) menu.update();
         else matchManager.update();
     }
