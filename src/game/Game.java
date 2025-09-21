@@ -25,8 +25,8 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
     public static final int HEIGHT = 500;
     public static final int WIDTH = 800;
     private boolean running;
-    private final float TICK_DELAY_NS =  1E7f; // = 1,000,000,000 / 100 which makes it 100 Hz for test
-    // TODO : currently 1000 Hz, test for 60, 100 or 120 Hz to save CPU
+    private Runnable onStop;
+    private final float TICK_DELAY_NS =  1E7f; // = 1,000,000,000 / 100 which makes it 100 Hz
     private final float FRAME_DELAY_NS = 1.6666667E7f; // = 1,000,000,000 / 60 which makes it 60 Hz
     private final boolean CAP_REFRESH_RATE = true; //doesn't work for some reasons
     private Menu menu;
@@ -38,9 +38,13 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
         // Later, we're going to define it differently, so it can be more flexible
     }
 
+    public void setOnStop(Runnable onStop) {
+        this.onStop = onStop;
+    }
+
     public void stop() {
         running = false;
-    } //TODO : stopping the thread isn't sufficient, it should close the window.
+    }
 
     @Override
     public void menuActions(MainMenuOptions action) {
@@ -161,6 +165,10 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
 
             loops++;
         } while (running);
+        // At the end of the main loop, we call onStop to dispose of the window
+        if (onStop != null) onStop.run();
+        // if we can't stop the window, we throw an exception so the user is aware of what's going on
+        else throw new RuntimeException("Couldn't dispose of the window, please close it manually.");
     }
 
     public void start() {
@@ -187,5 +195,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
         game.requestFocus();
 
         game.start();
+
+        game.setOnStop(() -> window.dispose());
     }
 }
