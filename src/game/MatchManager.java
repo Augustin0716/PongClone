@@ -178,8 +178,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
             // causes a return because we shouldn't update anything else if there is a PauseMenu.
             return;
         }
-        if (input.actionActivated(GameActions.PAUSE)) {
-            //should have been actionJustPressed, but it doesn't work because of tick doubling
+        if (input.actionJustPressed(GameActions.PAUSE)) {
             openMenu();
             // same as above, it's safer to stop right away
             return;

@@ -25,9 +25,9 @@ public class PauseMenu<E extends Enum<E>> extends Menu {
 
     @Override
     public void update() {
-        if(input.actionActivated(GameActions.PAUSE)) {
+        if(input.actionJustPressed(GameActions.PAUSE)) {
             master.closeMenu();
-        } //TODO : secure the menu so it doesn't close immediately
+        }
     }
 
     @Override
