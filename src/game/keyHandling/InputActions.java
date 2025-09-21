@@ -26,9 +26,12 @@ package game.keyHandling;
  *         return keyCodes;
  *     }
  * }}</pre>
+ * It is advised but not mandatory to also declare a method <pre>{@code
+ * public void setKeyCodes(int[] keyCodes) {
+ *     this.keyCodes = keyCodes;
+ * }}</pre> to be able to modify the key codes of any given action.
  */
 @FunctionalInterface
 public interface InputActions {
-
     int[] getKeyCodes();
 }
