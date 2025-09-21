@@ -12,8 +12,10 @@ import game.Updatable;
 
 /**
  * Returns for each action whether the keys bound to this action are pressed.
- * It extends KeyListener however <code>public void keyTyped</code> doesn't do anything.
- * <code>public boolean actionActivated(action)</code> should be used for the class to work properly.
+ * It extends KeyListener however {@code public void keyTyped} is not regarded.
+ * {@code public boolean actionActivated(action)} is the go-to method of this class, but for actions that require to be
+ * triggered for a single tick, {@code public boolean actionJustPressed(action)} can be used, and {@code public boolean
+ * actionJustReleased} is used to detect the first tick the action has been released.
  * When constructed, it adds itself to the java awt component chosen as master.
  * It works by using an Enum class that implements InputActions, referred to as an "action mapping".
  * See InputActions for more details about this kind of Enum.
@@ -26,21 +28,15 @@ public class InputHandler<E extends Enum<E> & InputActions> implements KeyListen
     private final boolean[] pressedKeysArray = new boolean[INPUT_LENGTH];
     private final boolean[] previous = new boolean[INPUT_LENGTH];
 
-    public class KeyAction {
-        public final int keyCode;
-        final boolean pressed;
-        public KeyAction(int keyCode, boolean pressed) {
-            this.keyCode = keyCode;
-            this.pressed = pressed;
-        }
+    private record KeyAction(int keyCode, boolean pressed) {
     }
 
     /**
      * The sole constructor of the class. It adds itself to the Component directly, so it's ready right away.
-     * @param game an awt Component subclass (that can call <code>addKeyListener(KeyListener I)</code>)
+     * @param master an awt Component subclass (that can call {@code addKeyListener(KeyListener I)})
      */
-    public InputHandler(Component game) {
-        game.addKeyListener(this);
+    public InputHandler(Component master) {
+        master.addKeyListener(this);
     }
 
     @Override
@@ -58,29 +54,13 @@ public class InputHandler<E extends Enum<E> & InputActions> implements KeyListen
 
     } // Not used
 
-    /**
-     * Tests whether the code is acceptable (actually if it just fits in the arrays) and modify the state of the key in
-     * pressedKeysArray and current (the array responsible for {@link #actionJustPressed(Enum)} and
-     * {@link #actionJustReleased(Enum)} working properly). This method is here as a security measure and a way not to
-     * repeat code, even on 2 lines.
-     * @param e the KeyEvent transmitted from the methods keyPressed and keyReleased
-     * @param pressed a boolean telling the state of the key : true -> the key is pressed, false -> the key is released
-     * @see #actionActivated(Enum)
-     * @see #actionJustPressed(Enum)
-     * @see #actionJustReleased(Enum)
-     */
-    public void toggleKey(KeyEvent e, boolean pressed) {
-        int code = e.getKeyCode();
-        if (code >= 0 && code < pressedKeysArray.length) {
-            pressedKeysArray[code] = pressed;
-        }
-    }
 
     /**
-     * Copies the array <code>pressedKeysArray</code>, which contains only the keys pressed this tick into
-     * <code>previous</code>, which contains the keys pressed last tick. In other words, we keep in memory the keys
-     * pressed within the tick that just ended, which allows the methods <code>actionJustPressed(Enum)</code> and
-     * <code>actionJustReleased(Enum)</code> to work properly. This method is like the timekeeper of this class,
+     * Copies the array {@code pressedKeysArray}, which contains only the keys pressed this tick into
+     * {@code previous}, which contains the keys pressed last tick and then process every key event received this tick.
+     * In other words, we keep in memory the keys pressed within the tick that just ended then keep in record the keys
+     * pressed within this tick, which allows the methods {@code actionJustPressed(Enum)} and
+     * {@code actionJustReleased(Enum)} to work properly. This method is like the timekeeper of this class,
      * allowing it to make the difference between "now" and "before".
      * @see #actionJustPressed(Enum)
      * @see #actionJustReleased(Enum)
@@ -110,7 +90,7 @@ public class InputHandler<E extends Enum<E> & InputActions> implements KeyListen
      * <li> both D and → are pressed.</li>
      * </ul>
      * You can test whether an action is not activated by just using the logical not as such :
-     * <code>!actionActivated(RUNNING) // returns true if JUMP is not triggered</code>.
+     * <code>!actionActivated(RUNNING) // returns true if SPACE is not triggered</code>.
      * @param action an Enum subclass of E as defined in {@link #InputHandler}
      * @return true if at least one of the keys performing the action is pressed, else false
      * @see #actionJustPressed(Enum)
@@ -122,8 +102,8 @@ public class InputHandler<E extends Enum<E> & InputActions> implements KeyListen
 
     /**
      * While {@link #actionActivated(Enum)} checks if one of the action's keys is pressed, this method checks if it
-     * wasn't the case last tick. For instance, if 'JUMP' is triggered by the space bar, <code>actionJustPressed</code>
-     * will return true for JUMP only the first tick space is pressed, then false until space is released for at least
+     * wasn't the case last tick. For instance, if 'SPACE' is triggered by the space bar, <code>actionJustPressed</code>
+     * will return true for SPACE only the first tick space is pressed, then false until space is released for at least
      * one tick and pressed again.
      * To make it short : <i>just pressed</i> = pressed, but only the first tick of the press.
      * @param action an action that is a subclass of E as defined in {@link #InputHandler}
@@ -140,8 +120,8 @@ public class InputHandler<E extends Enum<E> & InputActions> implements KeyListen
 
     /**
      * Works just as {@link #actionJustPressed(Enum)} but for this method, it returns true for this action if the keys
-     * for said actions are <i>just released</i>. For instance, if <code>JUMP</code> is triggered by the space bar,
-     * <code>actionJustReleased(JUMP)</code> will return true for the first tick of the action not being activated.
+     * for said actions are <i>just released</i>. For instance, if <code>SPACE</code> is triggered by the space bar,
+     * <code>actionJustReleased(SPACE)</code> will return true for the first tick of the action not being activated.
      * To make it short : <i>just released</i> = released, but only for the first tick.
      * @param action an enum subclass of E as defined in {@link #InputHandler}
      * @return true if all keys for action are just released, else false
