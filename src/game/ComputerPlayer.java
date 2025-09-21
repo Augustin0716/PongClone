@@ -2,17 +2,22 @@ package game;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.function.Function;
+import java.util.function.Consumer;
 
 public class ComputerPlayer extends Racket {
     public enum Difficulty {THICKHEAD, OKAY, SMART, GOD}
     private float targetY;
     private float[] targetsY; // So we can calculate and follow the ball
+    private Consumer<Ball> setTargetY;
+    private Runnable computerMove;
     private int internalClock;
     private final Difficulty difficulty;
     private final Random random = new Random();
     public ComputerPlayer(int side, Difficulty difficulty) {
         super(side);
         this.difficulty = difficulty;
+        //TODO : maybe use a Function var to avoid checking what difficulty the bot is each time
     }
 
     public void computerMove() {
