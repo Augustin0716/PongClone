@@ -2,6 +2,7 @@ package game;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Vector;
 import java.util.function.Function;
 import java.util.function.Consumer;
 
@@ -10,14 +11,43 @@ public class ComputerPlayer extends Racket {
     private float targetY;
     private float[] targetsY; // So we can calculate and follow the ball
     private Consumer<Ball> setTargetY;
-    private Runnable computerMove;
+    public Runnable computerMove;
     private int internalClock;
     private final Difficulty difficulty;
     private final Random random = new Random();
     public ComputerPlayer(int side, Difficulty difficulty) {
         super(side);
         this.difficulty = difficulty;
-        //TODO : maybe use a Function var to avoid checking what difficulty the bot is each time
+        switch (difficulty) {
+            case THICKHEAD, OKAY -> {
+                computerMove = () -> {
+                    try {
+                        float targetY = targetsY[internalClock / 10];
+                    } catch (ArrayIndexOutOfBoundsException ignored) {}
+                    goToTargetY(targetY);
+                    internalClock++;
+                };
+
+                int cap = (difficulty == Difficulty.THICKHEAD)? 0:100;
+                setTargetY = (ball) -> {
+                    Vector2D pos = ball.position.clone();
+                    Vector2D velocity = ball.speed.clone();
+                    targetsY = calculateMovements(pos, velocity, cap);
+                };
+
+
+            }
+            case SMART, GOD -> {
+                computerMove = () -> {
+                    goToTargetY(targetY);
+                };
+            }
+        }
+    }
+
+    public void goToTargetY(float targetY) {
+        if (y < targetY) y += SPEED;
+        if (y > targetY) y -= SPEED;
     }
 
     public void computerMove() {
@@ -26,7 +56,7 @@ public class ComputerPlayer extends Racket {
         }
         catch (ArrayIndexOutOfBoundsException ignored) {} // we just keep the last value
         if (y < targetY) y += SPEED;
-        if (y > targetY) y-= SPEED;
+        if (y > targetY) y -= SPEED;
         internalClock++;
     }
 
@@ -75,7 +105,7 @@ public class ComputerPlayer extends Racket {
                 );
                 positions[i] = calculateBallPosition(y0, vy, t) - offSet;
             }
-        } //TODO : capping on time is negligible at high speed, distance must be capped instead
+        }
         else Arrays.fill(positions, calculateBallPosition(y0, vy, tf) - offSet);
         return positions;
     }
