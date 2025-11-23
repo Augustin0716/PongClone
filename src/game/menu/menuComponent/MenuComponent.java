@@ -5,8 +5,8 @@ import game.Updatable;
 import game.menu.Menu;
 
 public abstract class MenuComponent implements Renderable, Updatable {
-    int x,y;
-    Menu master;
+    protected int x,y;
+    protected Menu master;
     public MenuComponent(Menu master) {
         this.master = master;
     }

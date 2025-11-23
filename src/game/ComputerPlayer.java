@@ -2,76 +2,89 @@ package game;
 
 import java.util.Arrays;
 import java.util.Random;
-import java.util.Vector;
-import java.util.function.Function;
 import java.util.function.Consumer;
 
 public class ComputerPlayer extends Racket {
+    /**
+     * This enum declares constants that are used to define how good the computer is at the game.
+     */
     public enum Difficulty {THICKHEAD, OKAY, SMART, GOD}
-    private float targetY;
-    private float[] targetsY; // So we can calculate and follow the ball
-    private Consumer<Ball> setTargetY;
+    private interface YFunction {
+        float getY();
+        static YFunction constant(float y) {
+            return () -> y;
+        }
+        static YFunction sequence(float[] y) {
+            return new YFunction() {
+                private int tick = 0;
+                @Override
+                public float getY() {
+                    int i = Math.min(tick++ / 10, y.length - 1);
+                    return y[i];
+                }
+
+            };
+        }
+    }
+    /**
+     * The functions are here to tidy up codes. Upon construction, the ComputerPlayer chooses strategies depending on its
+     * own difficulty setting and register them so they can be used during the match.
+     */
+    public Consumer<Ball> setTargetY;
     public Runnable computerMove;
+    /**
+     * Only used for the lower difficulties, it allows the bot to have a notion of time
+     */
     private int internalClock;
     private final Difficulty difficulty;
     private final Random random = new Random();
+    private YFunction YSupplier;
     public ComputerPlayer(int side, Difficulty difficulty) {
         super(side);
         this.difficulty = difficulty;
+        // sets up the strategies
         switch (difficulty) {
             case THICKHEAD, OKAY -> {
+
                 computerMove = () -> {
-                    try {
-                        float targetY = targetsY[internalClock / 10];
-                    } catch (ArrayIndexOutOfBoundsException ignored) {}
-                    goToTargetY(targetY);
-                    internalClock++;
+                    goToTargetY();
                 };
 
                 int cap = (difficulty == Difficulty.THICKHEAD)? 0:100;
                 setTargetY = (ball) -> {
-                    Vector2D pos = ball.position.clone();
-                    Vector2D velocity = ball.speed.clone();
-                    targetsY = calculateMovements(pos, velocity, cap);
+                    YSupplier = YFunction.sequence(calculateMovements(
+                            ball.position,
+                            ball.speed,
+                            cap
+                    ));
                 };
-
-
             }
+
             case SMART, GOD -> {
+
                 computerMove = () -> {
-                    goToTargetY(targetY);
+                    goToTargetY();
+                };
+
+                setTargetY = (ball) -> {
+                    YSupplier = YFunction.constant(
+                            calculateBallPosition(
+                                    ball.position.getY(),
+                                    ball.speed.getY(),
+                                    calculateHitTime(
+                                            ball.position.getX(),
+                                            ball.speed.getX()
+                                    )
+                            )
+                    );
                 };
             }
         }
     }
 
-    public void goToTargetY(float targetY) {
-        if (y < targetY) y += SPEED;
-        if (y > targetY) y -= SPEED;
-    }
-
-    public void computerMove() {
-        try {
-            targetY = targetsY[internalClock / 10];
-        }
-        catch (ArrayIndexOutOfBoundsException ignored) {} // we just keep the last value
-        if (y < targetY) y += SPEED;
-        if (y > targetY) y -= SPEED;
-        internalClock++;
-    }
-
-    public void setTargetY(Ball ball) {
-        internalClock = 0;
-        Vector2D pos = ball.position.clone();
-        Vector2D velocity = ball.speed.clone();
-        switch (difficulty) {
-            case OKAY -> targetsY = calculateMovements(pos, velocity, 100);
-            case SMART -> targetsY = calculateMovements(pos, velocity, Game.WIDTH);
-            case GOD -> {
-                targetsY = calculateMovements(pos, velocity, Game.WIDTH);
-            }
-            case THICKHEAD -> targetsY = calculateMovements(pos, velocity, 0);
-        }
+    public void goToTargetY() {
+        if (y < YSupplier.getY()) y += SPEED;
+        if (y > YSupplier.getY()) y -= SPEED;
     }
 
 
@@ -86,7 +99,8 @@ public class ComputerPlayer extends Racket {
             return new float[] {Game.HEIGHT / 2f - offSet};
             // quick fix for the negative array size issue, might be replaced in the future
         }
-        // the length of the positions should be able to run 1/10 of the ticks between t = 0 and t = tf, and we add 1 to ensure it's enough with the rounds up
+        // the length of the positions should be able to run 1/10 of the ticks between t = 0 and t = tf, and we add 1 to
+        // ensure it's enough with the rounds up
         float[] positions = new float[tf / 10 + 1];
         /*
         this loop justifies the use of an array : the goal is to make the

@@ -1,10 +1,15 @@
 package game.menu;
 
+import game.Game;
 import game.keyHandling.InputHandler;
 import game.keyHandling.GameActions;
 import game.menu.menuComponent.*;
 import game.Game.MainMenuOptions;
-import java.awt.Graphics;
+import game.menu.menuComponent.Button;
+import game.menu.menuComponent.MenuComponent;
+
+import java.awt.*;
+
 public class MainMenu extends Menu {
     public MainMenu(MenuMaster master, InputHandler<GameActions> input) {
         super(master, input, 4);
@@ -42,12 +47,14 @@ public class MainMenu extends Menu {
 
     @Override
     public void initComponents() {
-        menuComponents[0] = new Button(this,"2 BOTS", MainMenuOptions.BOT_VS_BOT);
-        menuComponents[1] = new Button(this, "PLAYER VS BOT", MainMenuOptions.PLAYER_VS_BOT);
-        menuComponents[2] = new Button(this, "2 PLAYERS", MainMenuOptions.PLAYER_VS_PLAYER);
-        menuComponents[3] = new Button(this, "QUIT", MainMenuOptions.EXIT_GAME);
+        Font font = new Font("Arial", Font.BOLD, 24);
+
+        menuComponents[0] = new Button<>(this,"2 BOTS", font, MainMenuOptions.BOT_VS_BOT);
+        menuComponents[1] = new Button<>(this, "PLAYER VS BOT", font, MainMenuOptions.PLAYER_VS_BOT);
+        menuComponents[2] = new Button<>(this, "2 PLAYERS", font,MainMenuOptions.PLAYER_VS_PLAYER);
+        menuComponents[3] = new Button<>(this, "QUIT", font, MainMenuOptions.EXIT_GAME);
         for (int i = 0; i < menuComponents.length; i++) {
-            menuComponents[i].setPos(300, 190 + 30 * i);
+            ((Button) menuComponents[i]).placeFromCenter(Game.WIDTH / 2, Game.HEIGHT / 2 - 90 + 60 * i);
         } // TODO : find a reliable way to center menu components
         ((SelectableMenuComponent) menuComponents[currentSelection]).toggleSelectionBehavior(true);
     }

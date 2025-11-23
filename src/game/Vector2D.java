@@ -1,7 +1,5 @@
 package game;
 
-import java.util.Vector;
-
 import static java.lang.Math.sqrt;
 
 /**
@@ -150,10 +148,14 @@ public class Vector2D implements Cloneable {
      * @param v a non-null Vector2D object
      * @param x how much is added to the x coordinate
      * @param y how much is added to the y coordinate
-     * @return a new Vector2D object with coordinates <code>(v(x) + x, v(y) + y)</code>.
+     * @return a new Vector2D object with coordinates {@code (v(x) + x, v(y) + y)}.
      */
     public static Vector2D addOperation(Vector2D v, float x, float y) {
         return new Vector2D(v.getX() + x, v.getY() + y);
+    }
+
+    public static Vector2D subtractOperation(Vector2D v1, Vector2D v2) {
+        return new Vector2D(v1.getX() - v2.getX(), v1.getX() - v2.getY());
     }
 
     /**

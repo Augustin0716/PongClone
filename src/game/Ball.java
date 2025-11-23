@@ -78,7 +78,7 @@ public class Ball implements Renderable, Updatable {
 
         // we update the computer once, for performance
         for (Racket player : new Racket[] {player1, player2}) {
-            if (player instanceof ComputerPlayer) ((ComputerPlayer) player).setTargetY(this);
+            if (player instanceof ComputerPlayer) ((ComputerPlayer) player).setTargetY.accept(this);
         }
     }
 

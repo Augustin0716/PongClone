@@ -6,6 +6,14 @@ import game.keyHandling.GameActions;
 import game.keyHandling.InputHandler;
 import game.menu.*;
 
+/**
+ * The matchManager is the class that handles everything that happens during the game. While the class Game (the master)
+ * handles the main menu and the "logistic" of the game (the tick update and the frame update), the MatchManager's role
+ * is to be both the gateway between the engine and the other entities like the ball and the rackets and manage the
+ * states of the game.
+ * It's created once in the Game class and "knows" its game object as "master", so it can communicate if needed. It also
+ * manages the ball and the 2 rackets, whether they're players or AI.
+ */
 public class MatchManager implements Renderable, Updatable, MenuMaster<MatchManager.PauseMenuOptions> {
 
     public enum PauseMenuOptions {
@@ -29,6 +37,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
     private int scorePlayer2;
     private final InputHandler<GameActions> input;
     private final BackGroundMenu backGround = new BackGroundMenu(this, null);
+    private Runnable handleMovements;
 
     public MatchManager(Game master, InputHandler<GameActions> input) {
         this.master = master;
@@ -54,7 +63,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                     ball.speed.set(2f * scoreSide, 0); // the ball is headed to the player that lost last point
                     gameState++;
                     for (Racket player : new Racket[] {player1, player2}) {
-                        if (player instanceof ComputerPlayer) ((ComputerPlayer) player).setTargetY(ball);
+                        if (player instanceof ComputerPlayer) ((ComputerPlayer) player).setTargetY.accept(ball);
                     }
                 }
             }
@@ -153,14 +162,33 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
             case 0 -> {
                 player1 = new ComputerPlayer(1, ComputerPlayer.Difficulty.SMART);
                 player2 = new ComputerPlayer(-1, ComputerPlayer.Difficulty.SMART);
+                handleMovements = () -> {
+                    ((ComputerPlayer) player1).computerMove.run();
+                    ((ComputerPlayer) player2).computerMove.run();
+                };
             }
             case 1 -> {
                 player1 = new Racket(1);
                 player2 = new ComputerPlayer(-1, ComputerPlayer.Difficulty.OKAY);
+                handleMovements = () -> {
+                    if (input.actionActivated(GameActions.PLAYER1_MOVE_DOWN) || input.actionActivated(GameActions.PLAYER2_MOVE_DOWN)) {
+                        player1.y += Racket.SPEED;
+                    }
+                    if (input.actionActivated(GameActions.PLAYER1_MOVE_UP) || input.actionActivated(GameActions.PLAYER2_MOVE_UP)) {
+                        player1.y -= Racket.SPEED;
+                    }
+                    ((ComputerPlayer) player2).computerMove.run();
+                };
             }
             case 2 -> {
                 player1 = new Racket(1);
                 player2 = new Racket(-1);
+                handleMovements = () -> {
+                    if (input.actionActivated(GameActions.PLAYER1_MOVE_DOWN)) player1.y += Racket.SPEED;
+                    if (input.actionActivated(GameActions.PLAYER1_MOVE_UP)) player1.y -= Racket.SPEED;
+                    if (input.actionActivated(GameActions.PLAYER2_MOVE_DOWN)) player2.y += Racket.SPEED;
+                    if (input.actionActivated(GameActions.PLAYER2_MOVE_UP)) player2.y -= Racket.SPEED;
+                };
             }
         }
         ball = new Ball(this, player1, player2);
@@ -183,12 +211,15 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
             // same as above, it's safer to stop right away
             return;
         }
+        // handleMovements.run();
+        //TODO : check whether handleMovements.run() goes as expected and check the IA class for computerMove (object)
+        // vs computerMove (method). If handleMovements works we can safe delete the block, one less switch is cleaner code
         switch (gameMode) {
             case 0 -> {
                 // bots play their moves
                 // typecasts are made so the IDE doesn't scream for help and are safe anyway thanks to the logic
-                ((ComputerPlayer) player1).computerMove();
-                ((ComputerPlayer) player2).computerMove();
+                ((ComputerPlayer) player1).computerMove.run();
+                ((ComputerPlayer) player2).computerMove.run();
             }
 
             case 1 -> { // if only one player plays, every input for the players trigger p1
@@ -199,7 +230,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                     player1.y -= Racket.SPEED;
                 }
                 // the bot plays too
-                ((ComputerPlayer) player2).computerMove();
+                ((ComputerPlayer) player2).computerMove.run();
             }
 
             case 2 -> {
