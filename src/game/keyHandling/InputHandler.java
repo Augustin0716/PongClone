@@ -82,16 +82,16 @@ public class InputHandler<E extends Enum<E> & InputActions> implements KeyListen
     /**
      * The main gateway between the inputs and the logic.<p> The goal of this method is <b>not</b> to check whether a
      * specific key is pressed (although possible), but rather to see whether an action performed by a keyboard input
-     * should be executed. For instance, if <code>RUNNING</code> is performed by pressing the <i>→</i> key or the
-     * <i>D</i> key, <code>actionActivated(RUNNING)</code> will be true if :
+     * should be executed. For instance, if {@code RUNNING} is performed by pressing the {@code →} key or the
+     * {@code D} key, {@code actionActivated(RUNNING)} will be true if :
      * <ul>
      * <li>D is pressed</li>
      * <li>→ is pressed</li>
      * <li> both D and → are pressed.</li>
      * </ul>
-     * You can test whether an action is not activated by just using the logical not as such :
-     * <code>!actionActivated(RUNNING) // returns true if SPACE is not triggered</code>.
-     * @param action an Enum subclass of E as defined in {@link #InputHandler}
+     * You can test whether an action is not activated by just using the logical not as such :<br>
+     * {@code if(!actionActivated(RUNNING)) {...} // returns true if D and → are not pressed}.
+     * @param action an Enum instance of E as defined in {@link #InputHandler}
      * @return true if at least one of the keys performing the action is pressed, else false
      * @see #actionJustPressed(Enum)
      * @see #InputHandler

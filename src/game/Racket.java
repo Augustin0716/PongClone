@@ -5,7 +5,10 @@ import static java.lang.Math.min;
 import static java.lang.Math.max;
 
 public class Racket implements Renderable, Updatable {
-    public float x,y; // left up corners coordinates, not a game.Vector2D object because only y will change
+    /**
+     * left up corners coordinates, not a Vector2D object because only y will change
+     */
+    public float x,y;
     public final int side;
     public static final int HEIGHT = 100;
     public static final int WIDTH = 10;

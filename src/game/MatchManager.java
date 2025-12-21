@@ -19,14 +19,12 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
     public enum PauseMenuOptions {
         RESUME,
         MAIN_MENU,
-        SOUND_ON, SOUND_OFF
-
+        NEW
     }
     private final Game master;
     private Menu menu;
     private final int middleX;
     private final int middleY;
-    private int gameMode;
     private int scoreSide = 1;
     public Racket player1 = new Racket(1); //TODO : players should be left or right rather than 1 and 2
     public Racket player2 = new Racket(-1);
@@ -45,12 +43,13 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
         this.middleX = Game.WIDTH / 2;
         this.middleY = Game.HEIGHT / 2;
         this.player1.x = Ball.RADIUS * 3;
-        this.player2.x = Game.WIDTH - Ball.RADIUS * 3;
+        this.player2.x = Game.WIDTH - Ball.RADIUS * 3 - Racket.WIDTH;
         resetPos();
     }
 
     @Override
     public void update() {
+        //TODO : maybe use Runnable objects instead of a huge block ?
         switch (gameState) {
             case -1 -> {
                 // in this case, the game hasn't been initialized, so there is nothing to update
@@ -129,9 +128,14 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                 gameState = -1;
                 master.openMenu();
             }
-            case SOUND_OFF -> {}
-            case SOUND_ON -> {
-                // TODO : use it when sounds are created
+            case NEW -> {
+                menu = null;
+                resetPos();
+                backGround.updateScore(0, 1);
+                backGround.updateScore(0, -1);
+                scorePlayer1 = scorePlayer2 = 0;
+                scoreSide = 1;
+                gameState = 0;
             }
         }
     }
@@ -147,7 +151,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
     }
 
 
-    public void resetPos() {
+    private void resetPos() {
         player1.y = player2.y = middleY - (float) Racket.HEIGHT / 2;
         ball.position.set(middleX, middleY);
         ball.speed.set(0,0);
@@ -156,8 +160,8 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
     public void startGame(int gameMode) {
         backGround.updateScore(0,1);
         backGround.updateScore(0,-1);
-        this.gameMode = gameMode;
         scorePlayer1 = scorePlayer2 = 0;
+        scoreSide = 1;
         switch (gameMode) {
             case 0 -> {
                 player1 = new ComputerPlayer(1, ComputerPlayer.Difficulty.SMART);
@@ -195,7 +199,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
         countdown = 100; // in ticks = 1 second
 
         player1.x = Ball.RADIUS * 3;
-        player2.x = Game.WIDTH - Ball.RADIUS * 3;
+        player2.x = Game.WIDTH - Ball.RADIUS * 3 - Racket.WIDTH;
         resetPos();
         gameState++;
     }
@@ -211,40 +215,12 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
             // same as above, it's safer to stop right away
             return;
         }
-        // handleMovements.run();
-        //TODO : check whether handleMovements.run() goes as expected and check the IA class for computerMove (object)
-        // vs computerMove (method). If handleMovements works we can safe delete the block, one less switch is cleaner code
-        switch (gameMode) {
-            case 0 -> {
-                // bots play their moves
-                // typecasts are made so the IDE doesn't scream for help and are safe anyway thanks to the logic
-                ((ComputerPlayer) player1).computerMove.run();
-                ((ComputerPlayer) player2).computerMove.run();
-            }
-
-            case 1 -> { // if only one player plays, every input for the players trigger p1
-                if (input.actionActivated(GameActions.PLAYER1_MOVE_DOWN) || input.actionActivated(GameActions.PLAYER2_MOVE_DOWN)) {
-                    player1.y += Racket.SPEED;
-                }
-                if (input.actionActivated(GameActions.PLAYER1_MOVE_UP) || input.actionActivated(GameActions.PLAYER2_MOVE_UP)) {
-                    player1.y -= Racket.SPEED;
-                }
-                // the bot plays too
-                ((ComputerPlayer) player2).computerMove.run();
-            }
-
-            case 2 -> {
-                if (input.actionActivated(GameActions.PLAYER1_MOVE_DOWN)) player1.y += Racket.SPEED;
-                if (input.actionActivated(GameActions.PLAYER1_MOVE_UP)) player1.y -= Racket.SPEED;
-                if (input.actionActivated(GameActions.PLAYER2_MOVE_DOWN)) player2.y += Racket.SPEED;
-                if (input.actionActivated(GameActions.PLAYER2_MOVE_UP)) player2.y -= Racket.SPEED;
-            }
-        }
+        handleMovements.run();
         // entities are updated last so every tick the moves are regarded
         updateEntities();
     }
 
-    public boolean winTest() {
+    private boolean winTest() {
         if (scorePlayer1 == 11 || scorePlayer2 == 11) return true;
         if (scorePlayer1 >= 9 && scorePlayer1 - scorePlayer2 > 1) return true;
         return scorePlayer2 >= 9 && scorePlayer2 - scorePlayer1 > 1;

@@ -10,7 +10,10 @@ import java.awt.image.BufferedImage;
 import java.awt.Font;
 
 public class Button<E extends Enum<E>> extends SelectableMenuComponent<E> {
-private final E action;
+    /**
+     * The action to pass on when clicking the button, which is then interpreted by the MenuMaster
+     */
+    private final E action;
     /**
      * The button display when it's not selected
      */
@@ -23,14 +26,6 @@ private final E action;
      * This variable is used so it's not necessary to check each time whether the button is selected
      */
     private BufferedImage showedDisplay;
-    /**
-     * The width of the image, on the x-axis
-     */
-    private final int width;
-    /**
-     * The height of the image, on the y-axis
-     */
-    private final int height;
 
     public Button(Menu master, String label, Font font, E action) {
         super(master);
@@ -72,11 +67,6 @@ private final E action;
     }
 
     @Override
-    public void update() {
-        // not used here
-    }
-
-    @Override
     public void toggleSelectionBehavior(boolean isSelected) {
         showedDisplay = isSelected? selectedDisplay:normalDisplay;
     }
@@ -86,8 +76,9 @@ private final E action;
         return this.action;
     }
 
+    @Override
     public void placeFromCenter(int x, int y) {
         this.x = x - width / 2;
-        this.y = y + height / 2;
+        this.y = y - height / 2;
     }
 }

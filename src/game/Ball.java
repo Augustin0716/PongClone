@@ -1,6 +1,7 @@
 package game;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 import static java.lang.Math.*;
 
@@ -9,13 +10,26 @@ public class Ball implements Renderable, Updatable {
     public final Vector2D position = new Vector2D(0,0);
     public final Vector2D speed = new Vector2D(0,0);
     public static final int RADIUS = 10;
-    public MatchManager master;
+    public final MatchManager master;
     public final Racket player1, player2;
+    private final BufferedImage sprite;
 
     public Ball(MatchManager master, Racket player1, Racket player2) {
         this.master = master;
         this.player1 = player1;
         this.player2 = player2;
+        sprite = new BufferedImage(RADIUS * 2, RADIUS * 2, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) sprite.getGraphics();
+        g.setPaint(new RadialGradientPaint(
+                RADIUS / 2f,
+                RADIUS / 2f,
+                RADIUS,
+                new float[]{0f, 0.4f, 1f},
+                new Color[]{Color.WHITE, new Color(205,205,205), new Color(155, 155, 155)},
+                MultipleGradientPaint.CycleMethod.REFLECT
+        ));
+        g.fillOval(0,0, RADIUS * 2, RADIUS * 2);
+        g.dispose();
     }
 
     private void testCollisions() {
@@ -84,8 +98,9 @@ public class Ball implements Renderable, Updatable {
 
     @Override
     public void render(Graphics g) {
-        g.setColor(Color.WHITE);
-        g.fillOval((int) this.position.getX() - RADIUS, (int) this.position.getY() - RADIUS, RADIUS * 2, RADIUS * 2);
+        //g.setColor(Color.WHITE);
+        //g.fillOval((int) this.position.getX() - RADIUS, (int) this.position.getY() - RADIUS, RADIUS * 2, RADIUS * 2);
+        g.drawImage(sprite, (int) position.getX() - RADIUS, (int) position.getY() - RADIUS, null);
     }
 
     @Override

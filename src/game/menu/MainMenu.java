@@ -3,7 +3,6 @@ package game.menu;
 import game.Game;
 import game.keyHandling.InputHandler;
 import game.keyHandling.GameActions;
-import game.menu.menuComponent.*;
 import game.Game.MainMenuOptions;
 import game.menu.menuComponent.Button;
 import game.menu.menuComponent.MenuComponent;
@@ -12,7 +11,7 @@ import java.awt.*;
 
 public class MainMenu extends Menu {
     public MainMenu(MenuMaster master, InputHandler<GameActions> input) {
-        super(master, input, 4);
+        super(master, input);
         this.initComponents();
     }
 
@@ -21,41 +20,22 @@ public class MainMenu extends Menu {
         for (MenuComponent mc : menuComponents) mc.render(g);
     }
 
-    @Override
-    public void update() {
-        if(checkCooldown()) {
-            if (input.actionActivated(GameActions.MENU_MOVE_DOWN)) {
-                ((SelectableMenuComponent) menuComponents[currentSelection]).toggleSelectionBehavior(false);
-                if (currentSelection < menuComponents.length - 1) currentSelection++;
-                else currentSelection = 0;
-                ((SelectableMenuComponent) menuComponents[currentSelection]).toggleSelectionBehavior(true);
-                this.cooldown = SELECTION_COOLDOWN_IN_TICKS;
-            } else
-            if (input.actionActivated(GameActions.MENU_MOVE_UP)) {
-                ((SelectableMenuComponent) menuComponents[currentSelection]).toggleSelectionBehavior(false);
-                if (currentSelection == 0) currentSelection = menuComponents.length - 1;
-                else currentSelection--;
-                ((SelectableMenuComponent) menuComponents[currentSelection]).toggleSelectionBehavior(true);
-                this.cooldown = SELECTION_COOLDOWN_IN_TICKS;
-            }
-            if (input.actionActivated(GameActions.SELECT)) {
-                master.menuActions(((SelectableMenuComponent) menuComponents[currentSelection]).click());
-                this.cooldown = SELECTION_COOLDOWN_IN_TICKS;
-            }
-        }
-    }
 
     @Override
     public void initComponents() {
         Font font = new Font("Arial", Font.BOLD, 24);
 
-        menuComponents[0] = new Button<>(this,"2 BOTS", font, MainMenuOptions.BOT_VS_BOT);
-        menuComponents[1] = new Button<>(this, "PLAYER VS BOT", font, MainMenuOptions.PLAYER_VS_BOT);
-        menuComponents[2] = new Button<>(this, "2 PLAYERS", font,MainMenuOptions.PLAYER_VS_PLAYER);
-        menuComponents[3] = new Button<>(this, "QUIT", font, MainMenuOptions.EXIT_GAME);
-        for (int i = 0; i < menuComponents.length; i++) {
-            ((Button) menuComponents[i]).placeFromCenter(Game.WIDTH / 2, Game.HEIGHT / 2 - 90 + 60 * i);
-        } // TODO : find a reliable way to center menu components
-        ((SelectableMenuComponent) menuComponents[currentSelection]).toggleSelectionBehavior(true);
+        selectableMenuComponents = new LoopingList<>(
+                new Button<>(this,"2 BOTS", font, MainMenuOptions.BOT_VS_BOT),
+                new Button<>(this, "PLAYER VS BOT", font, MainMenuOptions.PLAYER_VS_BOT),
+                new Button<>(this, "2 PLAYERS", font,MainMenuOptions.PLAYER_VS_PLAYER),
+                new Button<>(this, "QUIT", font, MainMenuOptions.EXIT_GAME)
+                );
+        menuComponents.addAll(selectableMenuComponents);
+        int i = 0;
+        for (MenuComponent mc : menuComponents) {
+            mc.placeFromCenter(Game.WIDTH / 2, Game.HEIGHT / 2 - 90 + 60 * i++);
+        }
+        selectableMenuComponents.current().toggleSelectionBehavior(true);
     }
 }

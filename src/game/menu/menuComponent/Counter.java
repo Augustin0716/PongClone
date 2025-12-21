@@ -32,12 +32,6 @@ public class Counter extends StaticMenuComponent {
         }
     }
 
-    @Override
-    public void update() {
-        // not used
-        //TODO : make it flash when changing the score
-    }
-
     /**
      * It doesn't actually set a value as one may expect, it actually stocks up the digit in <code>valueAsDigit</code>
      * as following : {units, dozens, hundreds, thousands, ...} and so on, until the list is filled. For instance,
@@ -55,4 +49,9 @@ public class Counter extends StaticMenuComponent {
         }
     }
 
+    @Override
+    public void placeFromCenter(int x, int y) {
+        this.x = x - digitFactory.size * 5;
+        this.y = y - digitFactory.size * 9;
+    }
 }

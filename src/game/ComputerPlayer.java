@@ -9,11 +9,45 @@ public class ComputerPlayer extends Racket {
      * This enum declares constants that are used to define how good the computer is at the game.
      */
     public enum Difficulty {THICKHEAD, OKAY, SMART, GOD}
+
+    /**
+     * The YFunction interface is a nested interface used to generate an object (stored in
+     * {@link ComputerPlayer#YSupplier}) that holds one float value or an array of float values with an extra field that
+     * take into account the number of time the method {@link YFunction#getY()} is called.
+     * This interface has 2 factory methods, one for the {@code float} case and one for the {@code float[]} case,
+     * {@link YFunction#constant} and {@link YFunction#sequence} respectively.
+     * The objective of this interface is to avoid declaring fields with only a hypothetical use while conserving the
+     * diversity of strategies and encapsulate the logic of the selection of the float value. The result is that the
+     * caller of getY() can't make the difference between a constant instance and a sequence instance.
+     * @see ComputerPlayer
+     */
     private interface YFunction {
+        /**
+         * The key to uniformity of the YFunction and its contract. Will return one float that the instance holds,
+         * depending on the instance.
+         * @return a float, depending on the instance : either y for a constant instance or y[i] with i the number of
+         * getY() calls divided by 10 for a sequence instance
+         */
         float getY();
+
+        /**
+         * Generates a YFunction object that will return y. The goal is simply to hold the float and maintain
+         * uniformity with the sequence instance.
+         * @param y the float that will be stored upon closure and can be accessed via getY()
+         * @return a YFunction which method getY() will return {@code y} as is
+         */
         static YFunction constant(float y) {
             return () -> y;
         }
+
+        /**
+         * Generates a YFunction object that will return y[i] with i being the number of calls of this function divided
+         * by 10 (and trucated). It takes care automatically of the index but it's not possible to change the index from
+         * outside the instance. If the number of call exceeds y.length * 10, the float at the last index of y is
+         * returned.
+         * @param y the float sequence
+         * @return a YFunction object which method getY() will return {@code y[i]} with i incrementing every 10 calls
+         */
         static YFunction sequence(float[] y) {
             return new YFunction() {
                 private int tick = 0;
@@ -26,29 +60,34 @@ public class ComputerPlayer extends Racket {
             };
         }
     }
+
     /**
-     * The functions are here to tidy up codes. Upon construction, the ComputerPlayer chooses strategies depending on its
-     * own difficulty setting and register them so they can be used during the match.
+     * The function objects are here to tidy up codes. Upon construction, the ComputerPlayer chooses strategies
+     * depending on its own difficulty setting and register them so they can be used during the match.
      */
     public Consumer<Ball> setTargetY;
     public Runnable computerMove;
     /**
-     * Only used for the lower difficulties, it allows the bot to have a notion of time
+     * Randomness is here to prevent bots from
+     *  - being too predictable
+     *  - always making the same moves
+     *  - being unbeatable (for the GOD difficulty)
+     * Only {@link Random#nextGaussian()} is used since its behavior was arbitrarily regarded as the most relevant
      */
-    private int internalClock;
-    private final Difficulty difficulty;
     private final Random random = new Random();
+    /**
+     * This object is here to supply either always the same float or a float of index i from an array, with i increasing
+     * with the number of call for the {@link YFunction#getY()} method.
+     * This object changes everytime a calculation must be done since what it supplies is defined by closure.
+     */
     private YFunction YSupplier;
     public ComputerPlayer(int side, Difficulty difficulty) {
         super(side);
-        this.difficulty = difficulty;
         // sets up the strategies
         switch (difficulty) {
             case THICKHEAD, OKAY -> {
 
-                computerMove = () -> {
-                    goToTargetY();
-                };
+                computerMove = this::goToTargetY;
 
                 int cap = (difficulty == Difficulty.THICKHEAD)? 0:100;
                 setTargetY = (ball) -> {
@@ -62,9 +101,7 @@ public class ComputerPlayer extends Racket {
 
             case SMART, GOD -> {
 
-                computerMove = () -> {
-                    goToTargetY();
-                };
+                computerMove = this::goToTargetY;
 
                 setTargetY = (ball) -> {
                     YSupplier = YFunction.constant(
@@ -75,7 +112,7 @@ public class ComputerPlayer extends Racket {
                                             ball.position.getX(),
                                             ball.speed.getX()
                                     )
-                            )
+                            ) - getOffset()
                     );
                 };
             }
@@ -91,12 +128,12 @@ public class ComputerPlayer extends Racket {
     private float[] calculateMovements(Vector2D position, Vector2D speed, int capCalculations) {
         float y0 = position.getY();
         float vy = speed.getY();
-        // the offSet makes the computer hits the ball on average in the center with a bit of random variation
-        float offSet = (float) ((1 + random.nextGaussian() * 0.5) * HEIGHT / 2);
+        // the offset makes the computer hits the ball on average in the center with a bit of random variation
+        float offset = getOffset();
         // time in ticks at which the ball reaches the goal
         int tf = calculateHitTime(position.getX(), speed.getX());
         if (tf < 0) {
-            return new float[] {Game.HEIGHT / 2f - offSet};
+            return new float[] {Game.HEIGHT / 2f - offset};
             // quick fix for the negative array size issue, might be replaced in the future
         }
         // the length of the positions should be able to run 1/10 of the ticks between t = 0 and t = tf, and we add 1 to
@@ -117,10 +154,10 @@ public class ComputerPlayer extends Racket {
                         capCalculations / vx + i * 10,
                         tf
                 );
-                positions[i] = calculateBallPosition(y0, vy, t) - offSet;
+                positions[i] = calculateBallPosition(y0, vy, t) - offset;
             }
         }
-        else Arrays.fill(positions, calculateBallPosition(y0, vy, tf) - offSet);
+        else Arrays.fill(positions, calculateBallPosition(y0, vy, tf) - offset);
         return positions;
     }
 
@@ -157,5 +194,7 @@ public class ComputerPlayer extends Racket {
         return (int) t;
     }
 
-    //TODO : create a method for a defensive strategy in case the ball is headed to the other side
+    private float getOffset() {
+        return (float) ((1 + random.nextGaussian() * 0.5) * HEIGHT / 2);
+    }
 }

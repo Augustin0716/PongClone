@@ -2,8 +2,8 @@ package game.keyHandling;
 
 /**
  *
- * This functional interface allows an Enum class to be used as an action dictionary
- * by the InputHandler class. An action dictionary is an ensemble of constants associated
+ * This functional interface allows an enum class to be used as an action mapping
+ * by the InputHandler class. An action mapping is an ensemble of constants (the enum instances) associated
  * with an integer array that represents the codes of the key that triggers said action.
  * Multiple keys can trigger an action, and multiple actions can be triggered by the same
  * key, which allows flexibility.<br>

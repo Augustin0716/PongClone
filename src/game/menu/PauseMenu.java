@@ -1,32 +1,41 @@
 package game.menu;
 
+import game.Game;
 import game.keyHandling.InputHandler;
 import game.keyHandling.GameActions;
 import game.menu.menuComponent.MenuComponent;
 import game.menu.menuComponent.Label;
+import game.menu.menuComponent.Button;
+import game.MatchManager.PauseMenuOptions;
 
-import java.awt.Graphics;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PauseMenu<E extends Enum<E>> extends Menu {
 
-
     public PauseMenu(MenuMaster<E> master, InputHandler<GameActions> input) {
-        super(master, input,2);
+        super(master, input);
         initComponents();
     }
 
     @Override
     public void initComponents() {
-        menuComponents[0] = new Label(this, "GAME PAUSED");
-        menuComponents[1] = new Label(this, "Press Del, F or 7 on the num pad to continue");
-        menuComponents[0].setPos(350, 200);
-        menuComponents[1].setPos(250, 235);
-    }
+        Font font = new Font("Arial", Font.BOLD, 24);
+        selectableMenuComponents = new LoopingList<>(
+                new Button<>(this, "Resume", font, PauseMenuOptions.RESUME),
+                new Button<>(this, "Main Menu", font, PauseMenuOptions.MAIN_MENU)
+        );
+        menuComponents = new ArrayList<>(Arrays.asList(
+                new Label(this, "GAME PAUSED"),
+                new Label(this, "Press Del, F or 7 on the num pad to continue")
+        ));
+        menuComponents.addAll(selectableMenuComponents);
 
-    @Override
-    public void update() {
-        if(input.actionJustPressed(GameActions.PAUSE)) {
-            master.closeMenu();
+        int sigmaShift = 0;
+        for(MenuComponent mc : menuComponents) {
+            mc.placeFromCenter(Game.WIDTH / 2, Game.HEIGHT / 2 - 100 + sigmaShift);
+            sigmaShift += mc.height() + 10;
         }
     }
 

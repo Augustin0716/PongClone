@@ -1,6 +1,7 @@
 package game.menu.menuComponent;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
@@ -37,16 +38,16 @@ public class DigitFactory {
          */
         boolean[][] segments = {
                 // in order : top, upper-left, upper-right, middle, lower-left, lower-right, bottom
-                {true, true, true, false, true, true, true}, //0 every one except middle
-                {false, false, true, false, false, true, false}, // 1 UR + LR
-                {true, false, true, true, true, false, true}, // 2 T + UR + M + LL + B
-                {true, false, true, true, false, true, true}, // 3 T + UR + M + LR + B
-                {false, true, true, true, false, true, false}, // 4 UL + UR + M + LR
-                {true, true, false, true, false, true, true}, // 5 T + UL + M + LR + B
-                {true, true, false, true, true, true, true}, // 6 T + UL + M + LL + LR + B
-                {true, false, true, false, false, true, false}, // 7 T + UR + LR
-                {true, true, true, true, true, true, true,}, // 8 every one
-                {true, true, true, true, false, true, false} //9 T + UL + UR + M + LR
+                {true, true, true, false, true, true, true}, //0: every one except middle
+                {false, false, true, false, false, true, false}, // 1: UR + LR
+                {true, false, true, true, true, false, true}, // 2: T + UR + M + LL + B
+                {true, false, true, true, false, true, true}, // 3: T + UR + M + LR + B
+                {false, true, true, true, false, true, false}, // 4: UL + UR + M + LR
+                {true, true, false, true, false, true, true}, // 5: T + UL + M + LR + B
+                {true, true, false, true, true, true, true}, // 6: T + UL + M + LL + LR + B
+                {true, false, true, false, false, true, false}, // 7: T + UR + LR
+                {true, true, true, true, true, true, true,}, // 8: every one
+                {true, true, true, true, false, true, false} //9: T + UL + UR + M + LR
         };
 
         for(int i = 0; i < 10; i++) {
@@ -92,6 +93,13 @@ public class DigitFactory {
         this(size, Color.WHITE, null);
     }
 
+    /**
+     * Return an image that correspond to the digit passed as argument. Will throw an exception if the argument is not
+     * 1, 2, 3, 4, 5, 6, 7, 8, 9 or 0.
+     * @param n a digit
+     * @return an image that represents the digit n
+     * @throws IllegalArgumentException if n is not a digit (n < 0 or n> 9)
+     */
     public BufferedImage getDigit(int n) {
         if (n < 0 || n > 9) throw new IllegalArgumentException("getDigit(int n) only accepts 0 <= n <= 9");
         else return digits[n];

@@ -1,5 +1,6 @@
 package game.menu.menuComponent;
 
+import game.menu.LoopingList;
 import game.menu.Menu;
 import java.awt.Graphics;
 import java.util.Map;
@@ -9,15 +10,14 @@ import java.awt.Color;
 public class ToggleButton<E extends Enum<E>> extends SelectableMenuComponent<E> {
     public Map<String, E> options;
     public String label;
-    public int currentSelection = 0;
-    public String[] optionsNames;
+    public LoopingList<String> optionsNames;
     public String output;
     public ToggleButton(Menu master, String label, Map<String, E> options) {
         super(master);
         this.options = options;
         this.label = label;
-        this.optionsNames = options.keySet().toArray(new String[0]);
-        this.output = this.label + " : " + optionsNames[currentSelection];
+        this.optionsNames = new LoopingList<>(options.keySet());
+        this.output = this.label + " : " + optionsNames.current();
     }
 
     @Override
@@ -28,20 +28,19 @@ public class ToggleButton<E extends Enum<E>> extends SelectableMenuComponent<E> 
     }
 
     @Override
-    public void update() {
-
-    }
-
-    @Override
     public void toggleSelectionBehavior(boolean isSelected) {
-        if (isSelected) this.output = label + " : <" + optionsNames[currentSelection] + '>';
-        else this.output = label + " : " + optionsNames[currentSelection];
+        if (isSelected) this.output = label + " : <" + optionsNames.current() + '>';
+        else this.output = label + " : " + optionsNames.current();
     }
 
     @Override
     public E click() {
-        currentSelection++;
-        output = label + " : <" + optionsNames[currentSelection] + '>';
-        return options.get(optionsNames[currentSelection]);
+        output = label + " : <" + optionsNames.current() + '>';
+        return options.get(optionsNames.next());
+    }
+
+    @Override
+    public void placeFromCenter(int x, int y) {
+        //TODO : complete this method
     }
 }
