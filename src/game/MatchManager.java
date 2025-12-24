@@ -1,10 +1,9 @@
 package game;
 
-import java.awt.Graphics;
-
 import game.keyHandling.GameActions;
 import game.keyHandling.InputHandler;
 import game.menu.*;
+import java.awt.Graphics;
 
 /**
  * The matchManager is the class that handles everything that happens during the game. While the class Game (the master)
@@ -21,14 +20,15 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
         MAIN_MENU,
         NEW
     }
+
     private final Game master;
-    private Menu menu;
+    private Menu<PauseMenuOptions> menu;
     private final int middleX;
     private final int middleY;
     private int scoreSide = 1;
-    public Racket player1 = new Racket(1); //TODO : players should be left or right rather than 1 and 2
-    public Racket player2 = new Racket(-1);
-    public Ball ball = new Ball(this, player1, player2);
+    public Racket player1; //TODO : players should be left or right rather than 1 and 2
+    public Racket player2;
+    public Ball ball = new Ball(this);
     private int countdown = 0;
     public int gameState = -1;
     private int scorePlayer1;
@@ -42,9 +42,6 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
         this.input = input;
         this.middleX = Game.WIDTH / 2;
         this.middleY = Game.HEIGHT / 2;
-        this.player1.x = Ball.RADIUS * 3;
-        this.player2.x = Game.WIDTH - Ball.RADIUS * 3 - Racket.WIDTH;
-        resetPos();
     }
 
     @Override
@@ -142,7 +139,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
 
     @Override
     public void openMenu() {
-        menu = new PauseMenu<>(this, input);
+        menu = new PauseMenu(this, input);
     }
 
     @Override
@@ -150,7 +147,11 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
         this.menu = null;
     }
 
-
+    /**
+     * Teleport the entities (ball and both players) to their initial positions (centered on y for everyone and centered
+     * on x for the ball) and set the ball's speed to 0. This method suppose that all objects are not null, if it's the
+     * case {@link NullPointerException} will be thrown.
+     */
     private void resetPos() {
         player1.y = player2.y = middleY - (float) Racket.HEIGHT / 2;
         ball.position.set(middleX, middleY);
@@ -173,7 +174,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
             }
             case 1 -> {
                 player1 = new Racket(1);
-                player2 = new ComputerPlayer(-1, ComputerPlayer.Difficulty.OKAY);
+                player2 = new ComputerPlayer(-1, ComputerPlayer.Difficulty.THICKHEAD);
                 handleMovements = () -> {
                     if (input.actionActivated(GameActions.PLAYER1_MOVE_DOWN) || input.actionActivated(GameActions.PLAYER2_MOVE_DOWN)) {
                         player1.y += Racket.SPEED;
@@ -195,7 +196,7 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
                 };
             }
         }
-        ball = new Ball(this, player1, player2);
+        ball = new Ball(this);
         countdown = 100; // in ticks = 1 second
 
         player1.x = Ball.RADIUS * 3;
@@ -225,4 +226,19 @@ public class MatchManager implements Renderable, Updatable, MenuMaster<MatchMana
         if (scorePlayer1 >= 9 && scorePlayer1 - scorePlayer2 > 1) return true;
         return scorePlayer2 >= 9 && scorePlayer2 - scorePlayer1 > 1;
     }
+
+    public Racket[] getPlayers() {
+        return new Racket[] {player1, player2};
+    }
+
+    public ComputerPlayer[] getComputers() {
+        if (player1 instanceof ComputerPlayer) {
+            if (player2 instanceof ComputerPlayer)
+                return new ComputerPlayer[] {(ComputerPlayer) player1, (ComputerPlayer) player2};
+            else return new ComputerPlayer[] {(ComputerPlayer) player1};
+        } else
+            if (player2 instanceof ComputerPlayer) return new ComputerPlayer[] {(ComputerPlayer) player2};
+            else return new ComputerPlayer[0]; //empty list
+    }
+
 }

@@ -12,14 +12,14 @@ import java.awt.Graphics;
 public class Counter extends StaticMenuComponent {
     private final int[] valueAsDigits;
     private final DigitFactory digitFactory;
-    public Counter(Menu master, int baseValue, DigitFactory digitFactory, int showedDigits) {
+    public Counter(Menu<?> master, int baseValue, DigitFactory digitFactory, int showedDigits) {
         super(master);
         this.digitFactory = digitFactory;
         this.valueAsDigits = new int[showedDigits];
         this.setValue(baseValue);
     }
 
-    public Counter(Menu master, int baseValue, DigitFactory digitFactory) {
+    public Counter(Menu<?> master, int baseValue, DigitFactory digitFactory) {
         this(master, baseValue, digitFactory, 1);
     }
 

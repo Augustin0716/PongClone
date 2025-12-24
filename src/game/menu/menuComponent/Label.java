@@ -10,7 +10,7 @@ public class Label extends StaticMenuComponent {
     private String label;
     private final Font font = new Font("Arial", Font.BOLD, 24);
     private final FontRenderContext frc = new FontRenderContext(null, true, true);
-    public Label(Menu master, String label) {
+    public Label(Menu<?> master, String label) {
         super(master);
         this.label = label;
         Rectangle2D bounds = font.getStringBounds(label, frc);

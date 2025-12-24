@@ -42,7 +42,7 @@ public class ComputerPlayer extends Racket {
 
         /**
          * Generates a YFunction object that will return y[i] with i being the number of calls of this function divided
-         * by 10 (and trucated). It takes care automatically of the index but it's not possible to change the index from
+         * by 10 (and truncated). It takes care automatically of the index but it's not possible to change the index from
          * outside the instance. If the number of call exceeds y.length * 10, the float at the last index of y is
          * returned.
          * @param y the float sequence
@@ -81,21 +81,39 @@ public class ComputerPlayer extends Racket {
      * This object changes everytime a calculation must be done since what it supplies is defined by closure.
      */
     private YFunction YSupplier;
+
     public ComputerPlayer(int side, Difficulty difficulty) {
         super(side);
         // sets up the strategies
         switch (difficulty) {
-            case THICKHEAD, OKAY -> {
+            case THICKHEAD -> {
+
+                computerMove = this::goToTargetY;
+                //TODO : delete it, useless
+
+                setTargetY = (ball) -> {
+                    Vector2D p = ball.position;
+                    Vector2D s = ball.speed;
+                    if (calculateHitTime(p.getX(), s.getX()) > 0) {
+                    YSupplier = YFunction.sequence(calculateMovements(
+                            p,
+                            s,
+                            0
+                    ));
+                    } else YSupplier = YFunction.constant(YSupplier.getY()); // just stay where it hit last
+                };
+            }
+            case OKAY -> {
 
                 computerMove = this::goToTargetY;
 
-                int cap = (difficulty == Difficulty.THICKHEAD)? 0:100;
                 setTargetY = (ball) -> {
-                    YSupplier = YFunction.sequence(calculateMovements(
-                            ball.position,
-                            ball.speed,
-                            cap
-                    ));
+                    Vector2D p = ball.position;
+                    Vector2D s = ball.speed;
+                    if (calculateHitTime(p.getX(), s.getX()) > 0)
+                        YSupplier = YFunction.sequence(calculateMovements(p, s, 100));
+                    else YSupplier = YFunction.constant(Game.HEIGHT / 2f - getOffset()); // goes back to center
+
                 };
             }
 

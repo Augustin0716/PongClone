@@ -8,5 +8,5 @@ import game.menu.Menu;
  * MenuComponent) and is also an abstract class.
  */
 public abstract class StaticMenuComponent extends MenuComponent {
-    public StaticMenuComponent(Menu master) {super(master);}
+    public StaticMenuComponent(Menu<?> master) {super(master);}
 }

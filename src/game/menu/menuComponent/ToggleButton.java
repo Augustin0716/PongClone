@@ -12,7 +12,8 @@ public class ToggleButton<E extends Enum<E>> extends SelectableMenuComponent<E> 
     public String label;
     public LoopingList<String> optionsNames;
     public String output;
-    public ToggleButton(Menu master, String label, Map<String, E> options) {
+
+    public ToggleButton(Menu<E> master, String label, Map<String, E> options) {
         super(master);
         this.options = options;
         this.label = label;

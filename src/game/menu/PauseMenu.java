@@ -12,9 +12,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PauseMenu<E extends Enum<E>> extends Menu {
+public class PauseMenu extends Menu<PauseMenuOptions> {
 
-    public PauseMenu(MenuMaster<E> master, InputHandler<GameActions> input) {
+    public PauseMenu(MenuMaster<PauseMenuOptions> master, InputHandler<GameActions> input) {
         super(master, input);
         initComponents();
     }
@@ -39,10 +39,4 @@ public class PauseMenu<E extends Enum<E>> extends Menu {
         }
     }
 
-    @Override
-    public void render(Graphics g) {
-        for (MenuComponent mc : menuComponents) {
-            mc.render(g);
-        }
-    }
 }

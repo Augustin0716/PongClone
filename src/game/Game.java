@@ -29,7 +29,7 @@ public class Game extends Canvas implements Runnable, Updatable, Renderable, Men
     private final float TICK_DELAY_NS =  1E7f; // = 1,000,000,000 / 100 which makes it 100 Hz
     private final float FRAME_DELAY_NS = 1.6666667E7f; // = 1,000,000,000 / 60 which makes it 60 Hz
     private final boolean CAP_REFRESH_RATE = true;
-    private Menu menu;
+    private Menu<MainMenuOptions> menu;
     private MatchManager matchManager;
     private InputHandler<GameActions> input;
 

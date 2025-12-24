@@ -1,32 +1,48 @@
 package game.menu;
 
-import game.Renderable;
-import game.Updatable;
 import game.keyHandling.GameActions;
 import game.keyHandling.InputHandler;
 import game.menu.menuComponent.MenuComponent;
 import game.menu.menuComponent.SelectableMenuComponent;
+import game.Updatable;
+import game.Renderable;
 
+import java.awt.Graphics;
 import java.util.ArrayList;
 
 /**
  * An abstract class used to display and manage a menu within a graphic interface.
- * It stores MenuComponents objects and can be able to listen to keyboard inputs and
- * send data from menu components to its MenuMaster. Even though the data, an Enum constant
- * is transferred through the menu from the menu components to the MenuMaster object, it doesn't
- * run any check whether the types are compatible, so it's recommended to check everything manually
- * when coding using these classes.
+ * It stores MenuComponents objects and is able to listen to keyboard inputs and
+ * send data from menu components to its MenuMaster. The parameter is the enum sent as data to the MenuMaster. Even
+ * though the Menu class and subclasses don't use it directly, it's a parameter for Menu so everything is type-safe.
+ * @param <E>
  */
-public abstract class Menu implements Renderable, Updatable {
+public abstract class Menu<E extends Enum<E>> implements Renderable, Updatable {
 
-    protected final MenuMaster master;
+    protected final MenuMaster<E> master;
+    /**
+     * A {@link LoopingList} that contains every {@link SelectableMenuComponent} for easy handling of the change and the
+     * capacity to pass from the last element of the menu to the first without any test.
+     */
+    protected LoopingList<SelectableMenuComponent<E>> selectableMenuComponents;
+    /**
+     * An {@link ArrayList} that contains every {@link MenuComponent}, including the ones from
+     * {@link Menu#selectableMenuComponents}. It's the list of every single {@code MenuComponent} object in the menu.
+     */
     protected ArrayList<MenuComponent> menuComponents;
-    protected LoopingList<SelectableMenuComponent> selectableMenuComponents;
     protected final int SELECTION_COOLDOWN_IN_TICKS = 10;
     protected int cooldown = 0;
-    protected final InputHandler input;
+    protected final InputHandler<GameActions> input;
 
-    public Menu(MenuMaster<?> master, InputHandler<?> input) {
+    /**
+     * Sole constructor of the class. This allows methods like the overridden {@link Menu#update()} method can
+     * work properly.
+     * @param master the master of the menu, which is parameterized with E like the menu and the
+     *              {@link SelectableMenuComponent} objects it holds
+     * @param input the input, whether they're used or not. Can be null if {@code update()} is overridden not to handle
+     *              it.
+     */
+    public Menu(MenuMaster<E> master, InputHandler<GameActions> input) {
         this.master = master;
         this.input = input;
     }
@@ -50,7 +66,10 @@ public abstract class Menu implements Renderable, Updatable {
         } else return true;
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Default method to update. Uses the inputHandler to listen to the inputs and move in consequence. In this form, being
+     * updated is like having focus.
+     */
     @Override
     public void update() {
         if(checkCooldown()) {
@@ -72,5 +91,15 @@ public abstract class Menu implements Renderable, Updatable {
                 this.cooldown = SELECTION_COOLDOWN_IN_TICKS;
             }
         }
+    }
+
+    /**
+     * Default method for rendering a menu. This method asserts that every {@code MenuComponent} object that must be
+     * rendered is present in {@link Menu#menuComponents}.
+     * @param g the Graphics object used to render
+     */
+    @Override
+    public void render(Graphics g) {
+        for (MenuComponent mc : menuComponents) mc.render(g);
     }
 }

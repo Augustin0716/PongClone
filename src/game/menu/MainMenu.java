@@ -8,18 +8,13 @@ import game.menu.menuComponent.Button;
 import game.menu.menuComponent.MenuComponent;
 
 import java.awt.*;
+import java.util.ArrayList;
 
-public class MainMenu extends Menu {
-    public MainMenu(MenuMaster master, InputHandler<GameActions> input) {
+public class MainMenu extends Menu<MainMenuOptions> {
+    public MainMenu(MenuMaster<MainMenuOptions> master, InputHandler<GameActions> input) {
         super(master, input);
         this.initComponents();
     }
-
-    @Override
-    public void render(Graphics g) {
-        for (MenuComponent mc : menuComponents) mc.render(g);
-    }
-
 
     @Override
     public void initComponents() {
@@ -31,7 +26,7 @@ public class MainMenu extends Menu {
                 new Button<>(this, "2 PLAYERS", font,MainMenuOptions.PLAYER_VS_PLAYER),
                 new Button<>(this, "QUIT", font, MainMenuOptions.EXIT_GAME)
                 );
-        menuComponents.addAll(selectableMenuComponents);
+        menuComponents = new ArrayList<>(selectableMenuComponents);
         int i = 0;
         for (MenuComponent mc : menuComponents) {
             mc.placeFromCenter(Game.WIDTH / 2, Game.HEIGHT / 2 - 90 + 60 * i++);

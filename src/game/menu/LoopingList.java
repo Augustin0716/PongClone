@@ -3,6 +3,27 @@ package game.menu;
 
 import java.util.*;
 
+/**
+ * A collection <b>but not a list</b> implementation made to access elements where order is important but specific index
+ * are not. Items are presented from a {@code head} which is the oldest object present in the list to the latest
+ * addition of the list. It can be browsed in a relative way, which means every object can lead to the previous object
+ * or the next object, although it's not adapted to access any object other than the {@code head} in a {@code O(1)} time,
+ * but rather simplify the incrementation of index :
+ * {@code myArray[i]} becomes {@code myLoopingList.current()},
+ * {@code myArray[++i]} becomes {@code myLoopingList.next()} and
+ * {@code myArray[--i]} becomes {@code myLoopingList.previous()}.<br>
+ * The other advantage of the looping list is to avoid {@link IndexOutOfBoundsException} and tests to "loop" such as :
+ * <pre>{@code
+ * /.../
+ * i += goingUp? 1:-1;
+ * if (i == -1) i = myArray.length - 1;
+ * if (i == myArray.length) i = 0;}</pre>
+ * Which is simply replaced by :
+ * <pre>{@code
+ * if (goingUp) myLoopingList.next();
+ * else myLoopingList.previous();}</pre>
+ * @param <E> the type of the element stocked in the looping list
+ */
 public class LoopingList<E> implements Collection<E> {
     /**
      * The nodes are the objects that allow the looping list to modify its size at the will of the user and navigate,
@@ -62,7 +83,7 @@ public class LoopingList<E> implements Collection<E> {
     /**
      * Constructor that directly add a collection to the looping list. Will not count as a modification, so the newly
      * created looping list will have a modCount = 0. The objects within the collection will be cast to E, so it's best
-     * to use the actual of the collection as parameter for LoopingList.
+     * to use the actual type of the collection as parameter for LoopingList.
      * @param c the collection to add to the looping list
      */
     @SuppressWarnings("unchecked")

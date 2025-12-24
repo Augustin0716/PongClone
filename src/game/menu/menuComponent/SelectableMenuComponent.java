@@ -9,7 +9,7 @@ import game.menu.Menu;
  * @param <E> an action mapping that the MenuMaster (an interface that allows an object to use a menu) holds and can handle
  */
 public abstract class SelectableMenuComponent<E extends Enum<E>> extends MenuComponent {
-    public SelectableMenuComponent(Menu master) {super(master);}
+    public SelectableMenuComponent(Menu<E> master) {super(master);}
     public abstract E click();
     public abstract void toggleSelectionBehavior(boolean isSelected);
 }

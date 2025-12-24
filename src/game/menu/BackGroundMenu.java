@@ -2,6 +2,7 @@ package game.menu;
 
 import game.Ball;
 import game.Game;
+import game.MatchManager.PauseMenuOptions;
 import game.keyHandling.GameActions;
 import game.keyHandling.InputHandler;
 import game.menu.menuComponent.Counter;
@@ -10,11 +11,14 @@ import game.menu.menuComponent.MenuComponent;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
 
-public class BackGroundMenu extends Menu {
+public class BackGroundMenu extends Menu<PauseMenuOptions> {
     private final BufferedImage backGround;
 
-    public BackGroundMenu(MenuMaster<?> master, InputHandler<GameActions> input) {
+    @SuppressWarnings("unchecked")
+    public BackGroundMenu(MenuMaster<PauseMenuOptions> master, InputHandler<GameActions> input) {
         super(master, input);
         initComponents();
         backGround = new BufferedImage(Game.WIDTH, Game.HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -41,19 +45,23 @@ public class BackGroundMenu extends Menu {
     @Override
     public void render(Graphics g) {
         g.drawImage(backGround, 0, 0, null);
-        for (MenuComponent mc : menuComponents) mc.render(g);
+        super.render(g);
     }
 
     @Override
     public void update() {
+        throw new UnsupportedOperationException("this menu should not update");
         // unused
     }
 
     @Override
     public void initComponents() {
         DigitFactory df = new DigitFactory(4);
-        menuComponents.add(new Counter(this, 0, df, 2)); // left
-        menuComponents.add(new Counter(this, 0, df, 2)); // right
+        menuComponents = new ArrayList<>(Arrays.asList(
+                new Counter(this, 0, df, 2), // left
+                new Counter(this, 0, df, 2) //right
+        ));
+        //TODO : find the cause of this bug, somehow the type isn't saved properly
         menuComponents.get(0).setPos(Ball.RADIUS * 5, Ball.RADIUS * 5);
         menuComponents.get(1).setPos(Game.WIDTH - 92 - Ball.RADIUS * 5, Ball.RADIUS * 5);
     }

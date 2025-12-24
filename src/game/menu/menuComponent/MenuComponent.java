@@ -5,13 +5,13 @@ import game.menu.Menu;
 
 public abstract class MenuComponent implements Renderable {
     protected int x,y, width, height;
-    protected Menu master;
+    protected Menu<?> master;
 
-    public MenuComponent(Menu master) {
+    public MenuComponent(Menu<?> master) {
         this.master = master;
     }
 
-    public MenuComponent(Menu master, int x, int y) {
+    public MenuComponent(Menu<?> master, int x, int y) {
         this(master);
         this.x = x;
         this.y = y;
